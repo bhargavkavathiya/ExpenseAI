@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(mkdir -p /tmp/uc10-prompts-rescue)",
+      "Bash(cp /d/Hackathon-Event/transitcoders-1dgc/Backend/app/prompts/*.md /tmp/uc10-prompts-rescue/)",
+      "Read(//tmp/**)",
+      "Bash(dotnet add *)",
+      "Bash(npx --yes @angular/cli@19 new frontend --routing --style=scss --standalone --ssr=false --skip-git --skip-tests=false --package-manager=npm)",
+      "Bash(docker exec *)",
+      "Bash(rm -f src/Uc10.Api/Controllers/WeatherForecastController.cs src/Uc10.Api/WeatherForecast.cs)",
+      "Read(//d/d/Hackathon-Event/transitcoders-1dgc/backend/src/**)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet run *)",
+      "Bash(curl -s -o /tmp/h.json -w 'HTTP %{http_code}\\\\n' http://localhost:5000/health)",
+      "Bash(curl -s -o /tmp/h2.json -w 'HTTP %{http_code}\\\\n' http://localhost:8080/health)",
+      "Bash(curl -s -w '5000 %{http_code}\\\\n' http://localhost:5000/health -o /dev/null)",
+      "Bash(curl -s -w '8080 %{http_code}\\\\n' http://localhost:8080/health -o /dev/null)",
+      "Bash(curl -sS -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:4300/)",
+      "Bash(curl -sS -H \"content-type: application/json\" -d '{\"email\":\"admin@demo.local\",\"password\":\"Admin@123\"}' http://localhost:4300/api/auth/login)",
+      "Bash(python -c \"import json,sys;d=json.load\\(sys.stdin\\);print\\('OK — token length',len\\(d['accessToken']\\),'· roles',d['user']['roles']\\)\")"
+    ]
+  }
+}

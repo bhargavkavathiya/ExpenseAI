@@ -1,0 +1,686 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html, body {
+  height: 100%;
+  background: #060810;
+  color: #e8f0f8;
+}
+
+body {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(37,99,235,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(5,150,105,0.05) 0%, transparent 50%),
+      #060810;
+  }
+}
+
+::-webkit-scrollbar       { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #283a50; border-radius: 2px; }
+::selection               { background: rgba(59,130,246,0.25); color: #f4f8fc; }
+
+@layer components {
+  .card {
+    @apply bg-ink-2 border border-line rounded-2xl p-5;
+  }
+  .card-title {
+    @apply text-[11px] font-bold text-fog uppercase tracking-[0.1em] mb-3.5;
+  }
+
+  .fl {
+    @apply block text-[11px] font-semibold text-fog uppercase tracking-[0.08em] mb-1.5;
+  }
+  .fc {
+    @apply w-full bg-ink-3 border border-line rounded-md px-3 py-2.5 text-[13px] text-snow outline-none transition;
+    &:focus { @apply border-sapphire-light ring-2 ring-sapphire/20; }
+    &::placeholder { @apply text-ink-5; }
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-md font-semibold text-[13px] transition select-none whitespace-nowrap;
+    &:disabled { @apply opacity-40 pointer-events-none; }
+  }
+  .btn-primary { @apply bg-sapphire text-white hover:bg-[#1d4ed8] hover:shadow-glow-blue; }
+  .btn-success { @apply bg-emerald text-white hover:shadow-glow-green; }
+  .btn-danger  { @apply bg-crimson text-white hover:bg-[#b91c1c]; }
+  .btn-warn    { @apply bg-amber text-black font-bold hover:bg-[#b45309]; }
+  .btn-ghost   { @apply bg-transparent text-snow border border-line-2 hover:bg-ink-4; }
+  .btn-sm      { @apply px-3 py-1 text-[12px]; }
+  .btn-xs      { @apply px-2.5 py-[3px] text-[11px]; }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-[2px] rounded-full text-[10px] font-bold tracking-[0.04em] uppercase whitespace-nowrap;
+  }
+  .b-green  { @apply bg-emerald/15 text-emerald-light border border-emerald/25; }
+  .b-amber  { @apply bg-amber/15 text-amber-light border border-amber/25; }
+  .b-red    { @apply bg-crimson/15 text-crimson-light border border-crimson/25; }
+  .b-blue   { @apply bg-sapphire/15 text-sapphire-light border border-sapphire/25; }
+  .b-violet { @apply bg-violet/15 text-violet-light border border-violet/25; }
+  .b-teal   { @apply bg-teal/15 text-teal-light border border-teal/25; }
+  .b-muted  { @apply bg-ink-4/80 text-fog border border-line; }
+  .b-orange { @apply bg-[rgba(234,88,12,0.12)] text-[#fb923c] border border-[rgba(234,88,12,0.25)]; }
+
+  .metric {
+    @apply bg-ink-2 border border-line rounded-2xl px-5 py-[18px] relative overflow-hidden transition;
+    &:hover { @apply border-line-2 -translate-y-[1px] shadow-card; }
+    &::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      border-radius: 1rem 1rem 0 0;
+    }
+  }
+  .metric-blue::after   { background: linear-gradient(90deg, #2563eb, #06b6d4); }
+  .metric-green::after  { background: linear-gradient(90deg, #059669, #34d399); }
+  .metric-amber::after  { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .metric-red::after    { background: linear-gradient(90deg, #dc2626, #f97316); }
+  .metric-violet::after { background: linear-gradient(90deg, #7c3aed, #3b82f6); }
+  .metric-teal::after   { background: linear-gradient(90deg, #0891b2, #10b981); }
+
+  .metric-label { @apply text-[10px] font-bold text-fog uppercase tracking-[0.1em] mb-2; }
+  .metric-val   { @apply text-[26px] font-extrabold text-white leading-none tracking-[-0.03em]; }
+  .metric-sub   { @apply text-[11px] text-fog mt-1; }
+  .metric-icon  { @apply absolute top-4 right-4 text-[20px] opacity-20; }
+
+  .dot { @apply inline-block w-[7px] h-[7px] rounded-full; }
+  .dot-green { @apply bg-emerald-light shadow-[0_0_6px_#10b981]; }
+  .dot-amber { @apply bg-amber-light; }
+  .dot-red   { @apply bg-crimson-light shadow-[0_0_6px_#ef4444]; }
+  .dot-blue  { @apply bg-sapphire-light; }
+
+  .alert {
+    @apply flex items-start gap-3 p-3.5 rounded-lg text-[12px] leading-relaxed mb-3.5;
+  }
+  .alert-icon    { @apply text-[16px] shrink-0 mt-[1px]; }
+  .alert-info    { @apply bg-sapphire/15 border border-sapphire/25 text-sapphire-light; }
+  .alert-success { @apply bg-emerald/15 border border-emerald/25 text-emerald-light; }
+  .alert-warn    { @apply bg-amber/15 border border-amber/25 text-amber-light; }
+  .alert-error   { @apply bg-crimson/15 border border-crimson/25 text-crimson-light; }
+
+  // ============================================================
+  // Admin shell — sidebar nav, brand glow, user avatar palettes.
+  // Used by AdminShellComponent. Dashboard reuses .kpi-* + .ring-bar.
+  // ============================================================
+
+  .brand-glow {
+    position: absolute; inset-inline: 0; top: 0; height: 140px;
+    pointer-events: none; opacity: 0.6;
+    background: radial-gradient(ellipse 60% 80% at 50% 0%,
+                rgba(37,99,235,0.20) 0%, transparent 70%);
+  }
+
+  .nav-link {
+    @apply flex items-center gap-2.5 px-3.5 py-[9px] mx-2 rounded-lg
+           text-[13px] font-medium text-fog cursor-pointer transition-all duration-150 relative;
+    &:hover {
+      background: rgba(40,58,80,0.45);
+      @apply text-snow;
+    }
+    &:hover .nav-arrow { opacity: 0.4; transform: translateX(2px); }
+    &:hover .nav-icon  { background: rgba(59,130,246,0.18); }
+  }
+  .nav-icon {
+    @apply w-[22px] h-[22px] flex items-center justify-center text-[14px]
+           rounded-md shrink-0 transition-all duration-150;
+    background: rgba(40,58,80,0.4);
+  }
+  .nav-arrow {
+    @apply text-[16px] opacity-0 transition-all duration-150;
+  }
+
+  // RouterLinkActive applies this class on the active <a> — bright background,
+  // accent text colour, vertical bar via inset shadow, glowing icon.
+  .nav-active {
+    background: linear-gradient(90deg, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.05) 100%) !important;
+    color: #93bbfb !important;
+    box-shadow: inset 2px 0 0 #60a5fa;
+    .nav-icon {
+      background: rgba(59,130,246,0.25) !important;
+      box-shadow: 0 0 12px rgba(59,130,246,0.25);
+    }
+    .nav-arrow { opacity: 0.7; color: #60a5fa; }
+  }
+
+  // Six per-user avatar gradients. AdminShellComponent picks one based on a
+  // hash of the email so the same user always gets the same colour without
+  // inline styles. Add more palettes if you want more variety.
+  .avatar-grad      { @apply rounded-full flex items-center justify-center font-bold text-white shrink-0; }
+  .avatar-grad-0    { background: linear-gradient(135deg, #2563eb, #06b6d4); }
+  .avatar-grad-1    { background: linear-gradient(135deg, #7c3aed, #3b82f6); }
+  .avatar-grad-2    { background: linear-gradient(135deg, #059669, #34d399); }
+  .avatar-grad-3    { background: linear-gradient(135deg, #dc2626, #f97316); }
+  .avatar-grad-4    { background: linear-gradient(135deg, #d97706, #fbbf24); }
+  .avatar-grad-5    { background: linear-gradient(135deg, #0891b2, #10b981); }
+
+  // ============================================================
+  // Dashboard primitives — KPI hero cards, ring bar, sparkline svg.
+  // ============================================================
+
+  .kpi {
+    @apply relative overflow-hidden rounded-2xl border border-line bg-ink-2 px-5 py-4
+           transition-all duration-200;
+    &:hover {
+      @apply border-line-2 -translate-y-[2px] shadow-card;
+    }
+    // Top accent gradient bar — colour set per .kpi-* modifier below.
+    &::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      border-radius: 1rem 1rem 0 0;
+    }
+    // Ambient orb glow in the corner.
+    &::before {
+      content: ''; position: absolute; top: -40%; right: -20%;
+      width: 200px; height: 200px; border-radius: 50%;
+      filter: blur(60px); opacity: 0.5; pointer-events: none;
+    }
+  }
+  .kpi-blue::after,
+  .kpi-blue::before   { background: linear-gradient(90deg, #2563eb, #06b6d4); }
+  .kpi-green::after,
+  .kpi-green::before  { background: linear-gradient(90deg, #059669, #34d399); }
+  .kpi-amber::after,
+  .kpi-amber::before  { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .kpi-red::after,
+  .kpi-red::before    { background: linear-gradient(90deg, #dc2626, #f97316); }
+
+  .kpi-label { @apply text-[10px] font-bold text-fog uppercase tracking-[0.12em] relative z-10; }
+  .kpi-val   { @apply text-[34px] font-extrabold text-white leading-none tracking-[-0.03em] mt-2 relative z-10; }
+  .kpi-sub   { @apply text-[11px] text-fog mt-2 flex items-center gap-1.5 relative z-10; }
+  .kpi-icon  { @apply absolute top-3.5 right-4 w-9 h-9 rounded-xl flex items-center justify-center text-[18px] z-10; }
+
+  .ring-bar {
+    @apply relative h-[6px] rounded-full overflow-hidden bg-ink-3;
+    .ring-fill {
+      @apply absolute inset-y-0 left-0 rounded-full transition-all duration-500;
+    }
+  }
+  .ring-fill-green { background: linear-gradient(90deg, #059669, #34d399); }
+  .ring-fill-amber { background: linear-gradient(90deg, #d97706, #fbbf24); }
+  .ring-fill-red   { background: linear-gradient(90deg, #dc2626, #f97316); }
+  .ring-fill-blue  { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+
+  // Module health card — replaces the dense table with a 2x2 grid of cards.
+  .module-card {
+    @apply relative rounded-xl border border-line bg-ink-3/40 p-3.5 transition-all duration-150;
+    &:hover { @apply border-line-2 bg-ink-3; }
+  }
+
+  // Histogram bars — one shared `.histo-bar` wrapper, 4 colour variants.
+  .histo-bar         { @apply relative w-full rounded-t-md transition-all duration-300 hover:opacity-80; }
+  .histo-bar-red     { background: linear-gradient(180deg, #ef4444, rgba(239,68,68,0.3)); }
+  .histo-bar-amber   { background: linear-gradient(180deg, #f59e0b, rgba(245,158,11,0.3)); }
+  .histo-bar-lime    { background: linear-gradient(180deg, #84cc16, rgba(132,204,22,0.3)); }
+  .histo-bar-emerald { background: linear-gradient(180deg, #10b981, rgba(16,185,129,0.3)); }
+
+  // Pulsing dot for "live" status indicator.
+  .pulse-dot {
+    @apply relative inline-block w-[7px] h-[7px] rounded-full bg-emerald-light;
+    box-shadow: 0 0 8px #10b981;
+    &::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      background: rgba(16,185,129,0.4);
+      animation: pulse-ring 1.6s ease-out infinite;
+    }
+  }
+  @keyframes pulse-ring {
+    0%   { transform: scale(0.6); opacity: 0.6; }
+    100% { transform: scale(1.6); opacity: 0;   }
+  }
+
+  // Integration card — bigger icon plate + status pill.
+  .integ-card {
+    @apply relative rounded-xl border border-line bg-ink-3/60 p-3.5 transition-all duration-150
+           flex items-center gap-3.5;
+    &:hover { @apply border-line-2 bg-ink-3 -translate-y-[1px] shadow-card; }
+  }
+  .integ-icon {
+    @apply w-11 h-11 rounded-xl flex items-center justify-center text-[20px] shrink-0;
+    background: linear-gradient(135deg, rgba(37,99,235,0.20), rgba(124,58,237,0.20));
+    border: 1px solid rgba(124,58,237,0.25);
+  }
+
+  // Review-queue drawer footer (note + decide buttons). Slight surface tint
+  // so the white decision-note input doesn't disappear into a white footer
+  // in light mode.
+  .drawer-footer {
+    @apply px-7 py-4 border-t border-line;
+    background: rgba(40,58,80,0.35);
+  }
+
+  // ============================================================
+  // Auth page — modern login + registration treatment.
+  // Used by AuthPageComponent. Drives the animated mesh background,
+  // the glassmorphism card, the sliding tab switcher, refined input
+  // focus states, the password show/hide toggle, and the brand panel
+  // feature tiles on the left side.
+  // ============================================================
+
+  // Animated multi-layer mesh — three slowly drifting radial orbs over the
+  // base ink-0 background give a subtle "alive" feel without distracting
+  // from the form. Pure CSS, no JS, no extra elements: applied via
+  // ::before / ::after pseudos so the markup stays clean.
+  .auth-bg {
+    position: relative;
+    overflow: hidden;
+    background: #060810;
+    isolation: isolate;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+    &::before {
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 20%, rgba(37,99,235,0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 80%, rgba(124,58,237,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 60% 50%, rgba(8,145,178,0.12) 0%, transparent 50%);
+      animation: auth-bg-drift 22s ease-in-out infinite alternate;
+    }
+    &::after {
+      // Faint diagonal noise pattern via repeating gradient — adds texture.
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.012) 0,
+        rgba(255,255,255,0.012) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      mix-blend-mode: overlay;
+    }
+  }
+  @keyframes auth-bg-drift {
+    0%   { transform: translate3d(0, 0, 0)        scale(1);    }
+    50%  { transform: translate3d(-2%, 1%, 0)     scale(1.05); }
+    100% { transform: translate3d(2%, -1.5%, 0)   scale(1.02); }
+  }
+
+  // Glassmorphism card — the auth form sits on this. Subtle border, blur,
+  // saturated edge highlight, and an inner shimmer that reads as polish
+  // without being noisy.
+  .auth-glass {
+    @apply relative rounded-2xl p-6 md:p-7;
+    background: linear-gradient(180deg,
+                rgba(20,30,46,0.85) 0%,
+                rgba(15,22,36,0.92) 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      0 24px 60px -12px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.02),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  // Pill tab switcher with sliding accent. Two children expected; the
+  // .tab-active class on either drives the visual selected state.
+  .auth-tabs {
+    @apply relative flex bg-ink-3/70 rounded-xl p-1 mb-5 border border-line/60;
+    backdrop-filter: blur(8px);
+  }
+  .auth-tab {
+    @apply flex-1 py-2.5 px-4 rounded-lg text-[13px] font-semibold text-fog
+           cursor-pointer select-none transition-all duration-200 relative z-10
+           text-center;
+    &:hover { @apply text-mist; }
+  }
+  .auth-tab.tab-active {
+    @apply text-snow;
+    background: linear-gradient(135deg, rgba(37,99,235,0.22), rgba(124,58,237,0.20));
+    box-shadow:
+      0 4px 12px -2px rgba(37,99,235,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  // Input wrapper that supports a leading icon + trailing toggle button
+  // (used for the password show/hide eye). Drop an .auth-input inside.
+  .auth-field {
+    @apply relative;
+  }
+  .auth-input {
+    @apply w-full bg-ink-3/60 border border-line rounded-lg pl-11 pr-3 py-3
+           text-[14px] text-snow outline-none transition-all duration-200;
+    backdrop-filter: blur(4px);
+    &::placeholder { @apply text-ink-5; }
+    &:hover { @apply border-line-2; }
+    &:focus {
+      @apply border-sapphire-light;
+      box-shadow:
+        0 0 0 3px rgba(59,130,246,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+  }
+  // Variant with a trailing button slot (eye icon).
+  .auth-input.has-trail { @apply pr-11; }
+  .auth-icon-leading {
+    @apply absolute left-3.5 top-1/2 -translate-y-1/2 text-fog text-[16px]
+           pointer-events-none transition-colors duration-200;
+  }
+  .auth-input:focus ~ .auth-icon-leading,
+  .auth-field:focus-within .auth-icon-leading { @apply text-sapphire-light; }
+
+  .auth-icon-trailing {
+    @apply absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-md
+           flex items-center justify-center text-fog cursor-pointer
+           hover:text-snow hover:bg-ink-4 transition-all duration-150;
+  }
+
+  // Primary CTA — gradient background, soft glow on hover, animated arrow
+  // that nudges right, and a shimmer band that sweeps across when loading.
+  .auth-cta {
+    @apply relative w-full inline-flex items-center justify-center gap-2
+           py-3 px-5 rounded-lg text-[14px] font-bold text-white
+           cursor-pointer select-none transition-all duration-200
+           overflow-hidden;
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%);
+    background-size: 200% auto;
+    box-shadow:
+      0 4px 14px -2px rgba(37,99,235,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.15);
+    &:hover {
+      background-position: right center;
+      box-shadow:
+        0 8px 24px -4px rgba(37,99,235,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.2);
+      transform: translateY(-1px);
+    }
+    &:active { transform: translateY(0); }
+    &:disabled {
+      @apply opacity-60 pointer-events-none;
+      transform: none;
+    }
+    .auth-cta-arrow {
+      @apply inline-block transition-transform duration-200;
+    }
+    &:hover .auth-cta-arrow { transform: translateX(3px); }
+
+    // Loading shimmer overlay — toggled via `.is-loading` modifier.
+    &.is-loading::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg,
+                  transparent 0%,
+                  rgba(255,255,255,0.15) 50%,
+                  transparent 100%);
+      animation: auth-cta-shimmer 1.4s linear infinite;
+    }
+  }
+  @keyframes auth-cta-shimmer {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%);  }
+  }
+
+  // Feature tiles in the left brand panel. Mini glass-cards with icon
+  // gradient swatches, used for "Prompt Version" / "Audit Chain" / etc.
+  .auth-feature {
+    @apply relative rounded-xl p-3.5 transition-all duration-200;
+    background: linear-gradient(180deg,
+                rgba(20,30,46,0.7) 0%,
+                rgba(15,22,36,0.85) 100%);
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(8px);
+    &:hover {
+      @apply -translate-y-[1px];
+      border-color: rgba(255,255,255,0.10);
+      box-shadow: 0 8px 20px -8px rgba(0,0,0,0.5);
+    }
+  }
+  .auth-feature-icon {
+    @apply w-9 h-9 rounded-lg flex items-center justify-center text-[16px] mb-2;
+  }
+  .auth-feature-icon-blue {
+    background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(6,182,212,0.20));
+    border: 1px solid rgba(37,99,235,0.35);
+    color: #93bbfb;
+  }
+  .auth-feature-icon-emerald {
+    background: linear-gradient(135deg, rgba(5,150,105,0.25), rgba(52,211,153,0.20));
+    border: 1px solid rgba(5,150,105,0.35);
+    color: #6ee7b7;
+  }
+  .auth-feature-icon-violet {
+    background: linear-gradient(135deg, rgba(124,58,237,0.25), rgba(59,130,246,0.20));
+    border: 1px solid rgba(124,58,237,0.35);
+    color: #c4b5fd;
+  }
+  .auth-feature-icon-amber {
+    background: linear-gradient(135deg, rgba(217,119,6,0.25), rgba(251,191,36,0.20));
+    border: 1px solid rgba(217,119,6,0.35);
+    color: #fcd34d;
+  }
+
+  // Card entrance animation — gentle slide-up on first paint.
+  .auth-enter { animation: auth-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes auth-enter {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  // ============================================================
+  // Theme toggle — used in auth page, admin shell, and every page header.
+  // ============================================================
+  .theme-toggle {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+           text-[11px] font-semibold text-mist
+           cursor-pointer select-none transition-all duration-150;
+    background: rgba(40,58,80,0.45);
+    border: 1px solid rgba(255,255,255,0.06);
+    &:hover {
+      @apply text-snow;
+      background: rgba(40,58,80,0.75);
+      border-color: rgba(255,255,255,0.12);
+    }
+  }
+  .theme-toggle-sm {
+    @apply px-2.5 py-1 text-[10px] gap-1.5;
+  }
+  .theme-toggle-icon { @apply text-[13px] leading-none; }
+  .theme-toggle-label { @apply uppercase tracking-[0.08em]; }
+}
+
+// ================================================================
+// LIGHT THEME — activated by `html[data-theme="light"]` (set by
+// ThemeService). Selectors here override the dark-mode values used
+// in body, page headers, .card, .auth-glass, form inputs, sidebar,
+// badges, etc. Specificity is high enough (attribute-on-html + class)
+// to beat plain Tailwind utility classes without !important.
+// ================================================================
+html[data-theme="light"] {
+  color-scheme: light;
+
+  body {
+    background: #f4f6fb;
+    color: #1e293b;
+    &::before {
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(37,99,235,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(5,150,105,0.07) 0%, transparent 50%),
+        #f4f6fb;
+    }
+  }
+
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+  ::selection               { background: rgba(59,130,246,0.18); color: #0f172a; }
+
+  // ------------- Surfaces -------------
+  .bg-ink-1 { background-color: #ffffff !important; }
+  .bg-ink-2 { background-color: #ffffff !important; }
+  .bg-ink-3 { background-color: #f1f5f9 !important; }
+  .bg-ink-4 { background-color: #e2e8f0 !important; }
+
+  // The opaque/blurred sticky-header variant.
+  .bg-ink-1\/95 { background-color: rgba(255,255,255,0.95) !important; }
+
+  // Some components use slash-opacity bg variants.
+  .bg-ink-3\/40, .bg-ink-3\/60, .bg-ink-3\/70 { background-color: rgba(241,245,249,0.7) !important; }
+  .bg-ink-4\/80                                { background-color: rgba(226,232,240,0.85) !important; }
+
+  // ------------- Borders -------------
+  .border-line   { border-color: #e2e8f0 !important; }
+  .border-line-2 { border-color: #cbd5e1 !important; }
+
+  // ------------- Text -------------
+  .text-snow  { color: #0f172a !important; }
+  .text-cloud { color: #1e293b !important; }
+  .text-mist  { color: #334155 !important; }
+  .text-fog   { color: #64748b !important; }
+  .text-ink-5 { color: #94a3b8 !important; }
+  .text-white { color: #0f172a !important; }
+
+  // Vivid accent text colours stay readable on light surfaces — bumped a
+  // shade darker so they pop.
+  .text-sapphire-light { color: #2563eb !important; }
+  .text-emerald-light  { color: #059669 !important; }
+  .text-amber-light    { color: #b45309 !important; }
+  .text-crimson-light  { color: #b91c1c !important; }
+  .text-violet-light   { color: #6d28d9 !important; }
+  .text-teal-light     { color: #0e7490 !important; }
+  .text-rose-light     { color: #be123c !important; }
+
+  // ------------- Components -------------
+  .card {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.05), 0 4px 14px rgba(15,23,42,0.04);
+  }
+
+  .fc {
+    background: #ffffff;
+    border-color: #e2e8f0;
+    color: #0f172a;
+    &::placeholder { color: #94a3b8; }
+    &:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.18); }
+  }
+
+  // Auth page light treatment — inverted glass, lighter mesh.
+  .auth-bg {
+    background: #f4f6fb;
+    &::before {
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 20%, rgba(37,99,235,0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 85% 80%, rgba(124,58,237,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 60% 50%, rgba(8,145,178,0.08) 0%, transparent 50%);
+    }
+    &::after {
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(15,23,42,0.025) 0,
+        rgba(15,23,42,0.025) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    }
+  }
+  .auth-glass {
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.96) 100%);
+    border-color: rgba(15,23,42,0.06);
+    box-shadow:
+      0 24px 60px -12px rgba(15,23,42,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .auth-tabs   { background: rgba(241,245,249,0.85); border-color: #e2e8f0; }
+  .auth-tab    { color: #64748b; &:hover { color: #1e293b; } }
+  .auth-tab.tab-active {
+    background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(124,58,237,0.10));
+    color: #1e293b;
+    box-shadow: 0 4px 12px -2px rgba(37,99,235,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+  }
+  .auth-input {
+    background: rgba(255,255,255,0.9);
+    border-color: #e2e8f0;
+    color: #0f172a;
+    &::placeholder { color: #94a3b8; }
+    &:hover { border-color: #cbd5e1; }
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+  }
+  .auth-icon-leading  { color: #94a3b8; }
+  .auth-icon-trailing { color: #64748b; &:hover { color: #1e293b; background: #e2e8f0; } }
+
+  .auth-feature {
+    background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.95) 100%);
+    border-color: rgba(15,23,42,0.06);
+  }
+
+  // Sidebar (admin shell) on light — lighter brand glow.
+  .brand-glow {
+    background: radial-gradient(ellipse 60% 80% at 50% 0%,
+                rgba(37,99,235,0.12) 0%, transparent 70%);
+  }
+  .nav-link {
+    color: #64748b;
+    &:hover { background: rgba(226,232,240,0.6); color: #0f172a; }
+    &:hover .nav-icon { background: rgba(59,130,246,0.18); }
+  }
+  .nav-icon { background: rgba(226,232,240,0.7); }
+  .nav-active {
+    background: linear-gradient(90deg, rgba(37,99,235,0.14) 0%, rgba(37,99,235,0.04) 100%) !important;
+    color: #2563eb !important;
+  }
+
+  // Dashboard primitives.
+  .kpi          { background: #ffffff; border-color: #e2e8f0; box-shadow: 0 2px 6px rgba(15,23,42,0.05); }
+  .kpi-val      { color: #0f172a !important; }
+  .module-card  { background: rgba(248,250,252,0.7); border-color: #e2e8f0;
+                  &:hover { background: #ffffff; border-color: #cbd5e1; } }
+  .integ-card   { background: rgba(255,255,255,0.85); border-color: #e2e8f0;
+                  &:hover { background: #ffffff; border-color: #cbd5e1; } }
+  .ring-bar     { background: #e2e8f0; }
+
+  // Buttons — primary stays brand-blue (already readable). Ghost gets a
+  // light surface so it doesn't disappear.
+  .btn-ghost {
+    color: #1e293b;
+    border-color: #cbd5e1;
+    &:hover { background: #f1f5f9; }
+  }
+
+  // Theme toggle pill on light bg.
+  .theme-toggle {
+    background: rgba(226,232,240,0.7);
+    border-color: rgba(15,23,42,0.06);
+    color: #334155;
+    &:hover { background: #e2e8f0; color: #0f172a; border-color: rgba(15,23,42,0.10); }
+  }
+
+  // Drop the white-text override gradients still need to read as bright.
+  .bg-gradient-to-br.from-sapphire { color: #ffffff; }
+
+  // Drawer footer override — light surface with subtle border tint so the
+  // decision-note input pops against a slightly different background.
+  .drawer-footer {
+    background: #f1f5f9;
+    border-top-color: #e2e8f0 !important;
+  }
+
+  // Drawer / overlay backdrops — soften on light.
+  .bg-black\/60 { background-color: rgba(15,23,42,0.35) !important; }
+
+  // Module/integ neutral text in light mode.
+  .text-line-2 { color: #94a3b8 !important; }
+}
+
+.page { animation: page-in 0.25s ease; }
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,62 @@
+# Env
+.env
+.env.*
+!.env.example
+!.env.prod
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+coverage.*
+*.coverage
+*.coveragexml
+
+# Node / Angular
+node_modules/
+dist/
+build/
+.angular/
+coverage/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+
+# Python (legacy lingering)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Uploads (runtime)
+backend/uploads/
+uploads/
+
+# Postgres local volume (if bind-mounted)
+postgres-data/
+
+# IDE scratch
+.qodo/

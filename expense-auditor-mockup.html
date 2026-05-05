@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UC10 — AI Expense Auditor · GUI Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-900:#0F1720;
+    --ink-700:#1E2A38;
+    --ink-500:#4A5A6B;
+    --ink-300:#8A98A8;
+    --ink-200:#B9C3CF;
+    --ink-100:#E3E8EE;
+    --paper:#F6F3EC;
+    --paper-2:#ECE6D8;
+    --card:#FFFFFF;
+    --accent:#C9402B;       /* finance red-orange, serious */
+    --accent-2:#1F4E46;     /* deep emerald */
+    --gold:#C39A3E;
+    --warn:#E0A423;
+    --ok:#2E7D58;
+    --bad:#B23A2C;
+    --radius:14px;
+    --shadow-sm: 0 1px 2px rgba(15,23,32,.06), 0 2px 6px rgba(15,23,32,.04);
+    --shadow-md: 0 4px 12px rgba(15,23,32,.08), 0 12px 32px rgba(15,23,32,.06);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink-900);font-family:'Manrope',sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  /* ---------- PAGE CHROME ---------- */
+  .page-header{
+    background:var(--ink-900);
+    color:var(--paper);
+    padding:32px 48px 40px;
+    border-bottom:1px solid var(--ink-700);
+    position:relative;
+    overflow:hidden;
+  }
+  .page-header::before{
+    content:'';
+    position:absolute;inset:0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201,64,43,.12) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(31,78,70,.18) 0%, transparent 45%);
+    pointer-events:none;
+  }
+  .page-header .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .page-header h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:48px;
+    line-height:1.05;
+    letter-spacing:-.02em;
+    max-width:860px;
+  }
+  .page-header h1 em{font-style:italic;color:var(--gold);font-weight:300}
+  .page-header .sub{
+    margin-top:18px;
+    max-width:680px;
+    color:var(--ink-200);
+    font-size:15px;
+  }
+  .page-header .meta{
+    margin-top:28px;
+    display:flex;gap:32px;flex-wrap:wrap;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-300);
+  }
+  .page-header .meta span b{color:var(--paper);font-weight:500}
+
+  .container{max-width:1400px;margin:0 auto;padding:56px 48px}
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:14px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .section-label::before{
+    content:'';width:24px;height:1px;background:var(--accent);
+  }
+  .section-title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:34px;
+    letter-spacing:-.015em;
+    margin-bottom:8px;
+  }
+  .section-desc{color:var(--ink-500);max-width:620px;margin-bottom:40px}
+
+  /* ---------- MOBILE FRAMES ---------- */
+  .mobile-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:28px;
+    align-items:start;
+  }
+  @media (max-width:1100px){ .mobile-row{grid-template-columns:repeat(2,1fr)} }
+
+  .phone{
+    background:var(--ink-900);
+    border-radius:36px;
+    padding:10px;
+    box-shadow:var(--shadow-md), 0 0 0 1px var(--ink-100);
+    position:relative;
+  }
+  .phone-screen{
+    background:var(--paper);
+    border-radius:28px;
+    overflow:hidden;
+    min-height:620px;
+    display:flex;flex-direction:column;
+    position:relative;
+  }
+  .phone-notch{
+    position:absolute;top:18px;left:50%;transform:translateX(-50%);
+    width:90px;height:22px;background:var(--ink-900);border-radius:14px;z-index:5;
+  }
+  .phone-status{
+    padding:14px 24px 8px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+    color:var(--ink-700);
+  }
+  .phone-status .right{display:flex;gap:6px;align-items:center}
+  .phone-label{
+    position:absolute;top:-22px;left:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-300);
+  }
+  .phone-label b{color:var(--ink-700);font-weight:600;margin-right:8px}
+
+  .mob-body{flex:1;padding:18px 22px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+  .mob-topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 0 4px;
+  }
+  .mob-logo{
+    font-family:'Fraunces',serif;font-size:20px;font-weight:500;letter-spacing:-.01em;
+    display:flex;align-items:center;gap:8px;
+  }
+  .mob-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .mob-avatar{
+    width:32px;height:32px;border-radius:50%;background:var(--ink-700);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;
+  }
+
+  /* SCREEN 1: LOGIN */
+  .login-hero{
+    background:linear-gradient(160deg, var(--ink-900) 0%, var(--ink-700) 100%);
+    color:var(--paper);
+    border-radius:20px;
+    padding:32px 22px;
+    position:relative;overflow:hidden;
+    margin-top:8px;
+  }
+  .login-hero::after{
+    content:'';position:absolute;right:-30px;top:-30px;
+    width:140px;height:140px;border-radius:50%;
+    background:radial-gradient(circle, rgba(201,64,43,.35), transparent 70%);
+  }
+  .login-hero .tag{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:12px;
+  }
+  .login-hero h2{
+    font-family:'Fraunces',serif;font-weight:400;font-size:26px;line-height:1.15;letter-spacing:-.015em;
+  }
+  .login-hero h2 em{font-style:italic;color:var(--gold);font-weight:300}
+  .login-hero p{margin-top:10px;color:var(--ink-200);font-size:12px;line-height:1.5}
+
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-500);
+  }
+  .field input, .field select{
+    background:var(--card);border:1px solid var(--ink-100);
+    padding:12px 14px;border-radius:10px;font:inherit;font-size:14px;color:var(--ink-900);
+    transition:border .15s;
+  }
+  .field input:focus{outline:none;border-color:var(--ink-900)}
+  .field small{font-size:11px;color:var(--ink-500)}
+
+  .btn{
+    padding:14px 18px;border-radius:12px;border:none;font:inherit;font-weight:600;font-size:14px;
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    transition:transform .1s, box-shadow .15s;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn-primary{background:var(--ink-900);color:var(--paper)}
+  .btn-primary:hover{box-shadow:0 6px 16px rgba(15,23,32,.2)}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-ghost{background:transparent;color:var(--ink-700);border:1px solid var(--ink-200)}
+  .btn-block{width:100%}
+
+  .divider-row{display:flex;align-items:center;gap:10px;color:var(--ink-300);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.2em;text-transform:uppercase}
+  .divider-row::before,.divider-row::after{content:'';flex:1;height:1px;background:var(--ink-100)}
+
+  .switch-link{text-align:center;font-size:12px;color:var(--ink-500)}
+  .switch-link a{color:var(--accent);font-weight:600;text-decoration:none}
+
+  /* SCREEN 2: SUBMIT */
+  .submit-greet{margin-top:6px}
+  .submit-greet .hi{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500)}
+  .submit-greet h3{font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin-top:4px;letter-spacing:-.01em}
+
+  .capture-card{
+    background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);
+    border:1px solid var(--ink-100);
+  }
+  .capture-zone{
+    border:1.5px dashed var(--ink-200);
+    border-radius:14px;
+    padding:28px 18px;text-align:center;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 12px, rgba(15,23,32,.02) 12px 13px);
+  }
+  .capture-zone .icon{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--ink-900);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
+    font-size:22px;
+  }
+  .capture-zone h4{font-family:'Fraunces',serif;font-size:18px;font-weight:500;margin-bottom:4px}
+  .capture-zone p{font-size:12px;color:var(--ink-500)}
+
+  .capture-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+
+  .recent-submissions{margin-top:4px}
+  .recent-submissions h5{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ink-500);margin-bottom:12px;
+  }
+  .recent-item{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:var(--card);border-radius:12px;border:1px solid var(--ink-100);
+    margin-bottom:8px;
+  }
+  .recent-thumb{
+    width:38px;height:38px;border-radius:8px;
+    background:linear-gradient(135deg,var(--paper-2),var(--ink-100));
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    flex-shrink:0;
+  }
+  .recent-meta{flex:1;min-width:0}
+  .recent-meta .v{font-weight:600;font-size:13px}
+  .recent-meta .d{font-size:11px;color:var(--ink-500);font-family:'JetBrains Mono',monospace}
+  .chip{
+    font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+    padding:4px 8px;border-radius:6px;letter-spacing:.05em;text-transform:uppercase;
+    flex-shrink:0;
+  }
+  .chip.ok{background:rgba(46,125,88,.12);color:var(--ok)}
+  .chip.warn{background:rgba(224,164,35,.15);color:#8a6100}
+  .chip.bad{background:rgba(178,58,44,.12);color:var(--bad)}
+
+  /* SCREEN 3: ACKNOWLEDGEMENT */
+  .ack-card{
+    background:var(--card);border-radius:20px;padding:28px 22px;
+    border:1px solid var(--ink-100);box-shadow:var(--shadow-sm);
+    text-align:center;
+  }
+  .ack-tick{
+    width:72px;height:72px;border-radius:50%;
+    background:linear-gradient(140deg, var(--ok), #1f5d40);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;font-size:32px;
+    position:relative;
+  }
+  .ack-tick::before{
+    content:'';position:absolute;inset:-6px;border-radius:50%;
+    border:1.5px solid rgba(46,125,88,.3);
+  }
+  .ack-card h3{font-family:'Fraunces',serif;font-size:22px;font-weight:500;letter-spacing:-.01em}
+  .ack-card p{color:var(--ink-500);font-size:13px;margin-top:8px}
+  .ref-pill{
+    margin:22px auto 0;display:inline-flex;align-items:center;gap:10px;
+    background:var(--paper-2);padding:10px 16px;border-radius:10px;
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+    letter-spacing:.03em;
+  }
+  .ref-pill .k{color:var(--ink-500);font-weight:500;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+
+  .pipeline{
+    margin-top:8px;background:var(--card);border-radius:16px;padding:18px;
+    border:1px solid var(--ink-100);
+  }
+  .pipeline h5{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500);margin-bottom:14px}
+  .pipe-step{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:13px}
+  .pipe-step .bullet{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+  .pipe-step.done .bullet{background:var(--ok);color:#fff}
+  .pipe-step.active .bullet{background:var(--accent);color:#fff;animation:pulse 1.6s infinite}
+  .pipe-step.wait .bullet{background:var(--ink-100);color:var(--ink-500)}
+  .pipe-step .lbl{flex:1}
+  .pipe-step .t{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-500)}
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 0 rgba(201,64,43,.45)}
+    50%{box-shadow:0 0 0 6px rgba(201,64,43,0)}
+  }
+
+  /* SCREEN 4: RESULT */
+  .result-head{
+    background:var(--ink-900);color:var(--paper);
+    border-radius:20px;padding:22px;position:relative;overflow:hidden;
+  }
+  .result-head::before{
+    content:'';position:absolute;right:-40px;bottom:-40px;width:180px;height:180px;border-radius:50%;
+    background:radial-gradient(circle, rgba(224,164,35,.3), transparent 65%);
+  }
+  .status-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(224,164,35,.2);color:var(--warn);
+    padding:6px 12px;border-radius:20px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;
+  }
+  .status-badge .d{width:7px;height:7px;border-radius:50%;background:var(--warn);animation:pulse-dot 1.4s infinite}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+
+  .result-head h3{font-family:'Fraunces',serif;font-size:24px;font-weight:500;margin-top:14px;letter-spacing:-.015em;line-height:1.2}
+  .result-head .amt{margin-top:14px;display:flex;align-items:baseline;gap:8px}
+  .result-head .amt .big{font-family:'Fraunces',serif;font-size:36px;font-weight:500;letter-spacing:-.02em}
+  .result-head .amt .ccy{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-300);letter-spacing:.15em}
+
+  .conf-meter{margin-top:18px;position:relative;z-index:2}
+  .conf-meter .lbl{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-300);margin-bottom:6px}
+  .conf-meter .lbl b{color:var(--warn);font-weight:600}
+  .conf-bar{height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+  .conf-bar .fill{height:100%;width:62%;background:linear-gradient(90deg,var(--warn),var(--gold));border-radius:3px;box-shadow:0 0 12px rgba(224,164,35,.4)}
+  .conf-meter small{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-300);margin-top:6px;display:block}
+
+  .explain-card{
+    background:var(--card);border:1px solid var(--ink-100);border-radius:16px;padding:18px;
+  }
+  .explain-card .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .explain-card .k::before{content:'';width:14px;height:1px;background:var(--accent)}
+  .explain-card p{font-family:'Fraunces',serif;font-size:16px;line-height:1.55;font-weight:400}
+  .explain-card p em{color:var(--accent);font-style:italic;font-weight:500}
+
+  .module-breakdown{background:var(--card);border:1px solid var(--ink-100);border-radius:16px;overflow:hidden}
+  .module-breakdown h5{
+    padding:14px 18px;border-bottom:1px solid var(--ink-100);
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .module-breakdown h5 span{font-size:10px;color:var(--ink-300)}
+  .module-row{
+    display:grid;grid-template-columns:20px 1fr auto auto;gap:12px;align-items:center;
+    padding:12px 18px;border-bottom:1px solid var(--ink-100);
+  }
+  .module-row:last-child{border-bottom:none}
+  .module-row .m-icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+  .module-row.ocr .m-icon{background:var(--ink-700)}
+  .module-row.dup .m-icon{background:var(--accent-2)}
+  .module-row.ano .m-icon{background:var(--accent)}
+  .module-row.pol .m-icon{background:var(--gold)}
+  .module-row .m-name{font-weight:600;font-size:13px}
+  .module-row .m-name small{display:block;font-weight:400;font-size:11px;color:var(--ink-500);margin-top:2px}
+  .module-row .m-score{
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;
+  }
+  .module-row .m-flag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 6px;border-radius:4px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  .module-row .m-flag.ok{background:rgba(46,125,88,.12);color:var(--ok)}
+  .module-row .m-flag.warn{background:rgba(224,164,35,.15);color:#8a6100}
+
+  .result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* ---------- ADMIN DASHBOARD ---------- */
+  .admin-shell{
+    background:var(--card);border-radius:20px;
+    overflow:hidden;box-shadow:var(--shadow-md);
+    border:1px solid var(--ink-100);
+    display:grid;
+    grid-template-columns:240px 1fr;
+    min-height:820px;
+  }
+
+  .admin-sidebar{
+    background:var(--ink-900);color:var(--paper);
+    padding:24px 18px;display:flex;flex-direction:column;gap:4px;
+  }
+  .admin-brand{
+    font-family:'Fraunces',serif;font-size:22px;font-weight:500;letter-spacing:-.015em;
+    padding:4px 8px 20px;border-bottom:1px solid rgba(255,255,255,.08);
+    margin-bottom:16px;display:flex;align-items:center;gap:10px;
+  }
+  .admin-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .admin-brand em{color:var(--gold);font-style:italic;font-weight:300}
+  .nav-group-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-300);padding:14px 8px 8px}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+    color:var(--ink-200);font-size:13px;font-weight:500;cursor:pointer;
+    transition:background .15s;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.04)}
+  .nav-item.active{background:var(--accent);color:#fff}
+  .nav-item .i{width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+  .nav-item .badge{margin-left:auto;background:rgba(255,255,255,.12);padding:2px 7px;border-radius:10px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600}
+  .nav-item.active .badge{background:rgba(0,0,0,.18)}
+
+  .admin-footer{
+    margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;gap:10px;font-size:12px;
+  }
+  .admin-footer .av{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--ink-900);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .admin-footer .who{flex:1;min-width:0}
+  .admin-footer .who b{display:block;font-size:12px;color:var(--paper)}
+  .admin-footer .who span{font-size:10px;color:var(--ink-300);font-family:'JetBrains Mono',monospace}
+
+  .admin-main{padding:28px 32px;overflow:auto;background:var(--paper)}
+  .admin-topbar{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:28px;
+  }
+  .admin-topbar .title .eye{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .admin-topbar .title .eye::before{content:'';width:20px;height:1px;background:var(--accent)}
+  .admin-topbar .title h2{font-family:'Fraunces',serif;font-size:30px;font-weight:500;letter-spacing:-.015em}
+  .admin-topbar .title p{color:var(--ink-500);margin-top:4px;font-size:13px}
+
+  .admin-topbar .actions{display:flex;gap:10px;align-items:center;flex-shrink:0}
+  .search-bar{
+    display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--ink-100);
+    padding:10px 14px;border-radius:10px;min-width:260px;font-size:13px;color:var(--ink-500);
+  }
+  .search-bar kbd{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 6px;background:var(--paper-2);border-radius:4px;color:var(--ink-500)}
+  .btn-sm{padding:10px 14px;font-size:13px;border-radius:10px}
+
+  /* KPI CARDS */
+  .kpi-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;
+  }
+  .kpi{
+    background:var(--card);border:1px solid var(--ink-100);border-radius:14px;
+    padding:20px;position:relative;overflow:hidden;
+  }
+  .kpi .k{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500);margin-bottom:10px}
+  .kpi .v{font-family:'Fraunces',serif;font-size:36px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .kpi .v small{font-size:14px;color:var(--ink-500);font-weight:400;margin-left:4px;font-family:'Manrope',sans-serif}
+  .kpi .delta{margin-top:8px;display:flex;align-items:center;gap:6px;font-size:12px;font-family:'JetBrains Mono',monospace}
+  .kpi .delta.up{color:var(--ok)}
+  .kpi .delta.down{color:var(--bad)}
+  .kpi .delta.flat{color:var(--ink-500)}
+  .kpi .spark{position:absolute;right:14px;bottom:14px;opacity:.5}
+  .kpi.accent{background:var(--ink-900);color:var(--paper)}
+  .kpi.accent .k{color:var(--ink-300)}
+  .kpi.accent .v{color:var(--paper)}
+  .kpi.accent .v small{color:var(--ink-300)}
+
+  /* DASHBOARD GRID */
+  .dash-grid{
+    display:grid;grid-template-columns:1.4fr 1fr;gap:20px;margin-bottom:24px;
+  }
+  .panel{
+    background:var(--card);border:1px solid var(--ink-100);border-radius:14px;padding:22px;
+  }
+  .panel-head{
+    display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;
+  }
+  .panel-head .h{font-family:'Fraunces',serif;font-size:20px;font-weight:500;letter-spacing:-.01em}
+  .panel-head .s{font-size:12px;color:var(--ink-500);margin-top:2px}
+  .panel-head .tabs{display:flex;gap:4px;background:var(--paper-2);padding:3px;border-radius:8px}
+  .panel-head .tabs span{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;padding:5px 10px;border-radius:6px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--ink-500)}
+  .panel-head .tabs span.active{background:var(--card);color:var(--ink-900);box-shadow:var(--shadow-sm)}
+
+  /* Confidence histogram */
+  .histo{display:flex;align-items:flex-end;gap:6px;height:180px;padding:0 4px}
+  .histo-bar{flex:1;background:linear-gradient(180deg,var(--ink-700),var(--ink-900));border-radius:4px 4px 0 0;position:relative;min-height:8px;transition:transform .15s}
+  .histo-bar:hover{transform:scaleY(1.03)}
+  .histo-bar.low{background:linear-gradient(180deg,#d8523e,var(--accent))}
+  .histo-bar.mid{background:linear-gradient(180deg,var(--warn),#b88515)}
+  .histo-bar.high{background:linear-gradient(180deg,#4a9672,var(--ok))}
+  .histo-bar .c{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--ink-700)}
+  .histo-axis{display:flex;justify-content:space-between;margin-top:10px;padding:0 4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-500)}
+  .histo-legend{display:flex;gap:16px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-500);letter-spacing:.08em;text-transform:uppercase}
+  .histo-legend span{display:inline-flex;align-items:center;gap:6px}
+  .histo-legend .sw{width:10px;height:10px;border-radius:2px}
+
+  /* Module health */
+  .mod-list{display:flex;flex-direction:column;gap:14px}
+  .mod-row{
+    display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--ink-100);
+  }
+  .mod-row:last-child{border-bottom:none}
+  .mod-row .mi{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;font-family:'JetBrains Mono',monospace}
+  .mod-row .mi.ocr{background:var(--ink-700)}
+  .mod-row .mi.dup{background:var(--accent-2)}
+  .mod-row .mi.ano{background:var(--accent)}
+  .mod-row .mi.pol{background:var(--gold)}
+  .mod-row .mc{flex:1}
+  .mod-row .mc .n{font-weight:600;font-size:13px}
+  .mod-row .mc .x{font-size:11px;color:var(--ink-500);font-family:'JetBrains Mono',monospace;margin-top:2px}
+  .mod-row .mprog{display:flex;align-items:center;gap:8px}
+  .mod-row .mbar{width:70px;height:5px;background:var(--ink-100);border-radius:3px;overflow:hidden}
+  .mod-row .mbar .f{height:100%;background:var(--ok);border-radius:3px}
+  .mod-row .ms{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;min-width:40px;text-align:right}
+
+  /* REVIEW QUEUE TABLE */
+  .table-panel{margin-bottom:24px}
+  .tbl{width:100%;border-collapse:collapse;font-size:13px}
+  .tbl thead th{
+    text-align:left;padding:10px 12px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-500);font-weight:600;
+    border-bottom:1px solid var(--ink-100);
+  }
+  .tbl tbody td{padding:14px 12px;border-bottom:1px solid var(--ink-100);vertical-align:middle}
+  .tbl tbody tr:hover{background:var(--paper)}
+  .tbl .refid{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent)}
+  .tbl .vendor-cell{display:flex;align-items:center;gap:10px}
+  .tbl .vthumb{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,var(--paper-2),var(--ink-100));display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+  .tbl .vendor-cell b{display:block;font-weight:600}
+  .tbl .vendor-cell small{font-size:11px;color:var(--ink-500);font-family:'JetBrains Mono',monospace}
+  .tbl .amt-cell{font-weight:600;font-family:'JetBrains Mono',monospace}
+  .tbl .conf-cell{display:flex;align-items:center;gap:8px}
+  .tbl .conf-cell .cbar{width:60px;height:4px;background:var(--ink-100);border-radius:2px;overflow:hidden}
+  .tbl .conf-cell .cbar .f{height:100%;border-radius:2px}
+  .tbl .conf-cell .cbar .f.low{background:var(--accent);width:38%}
+  .tbl .conf-cell .cbar .f.mid{background:var(--warn);width:62%}
+  .tbl .conf-cell .cbar .f.high{background:var(--ok);width:86%}
+  .tbl .conf-cell .cv{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;min-width:34px}
+  .tbl .flags{display:flex;gap:4px;flex-wrap:wrap}
+  .flag-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:3px 6px;border-radius:4px;
+  }
+  .flag-tag.dup{background:rgba(178,58,44,.12);color:var(--bad)}
+  .flag-tag.ano{background:rgba(224,164,35,.15);color:#8a6100}
+  .flag-tag.pol{background:rgba(31,78,70,.12);color:var(--accent-2)}
+  .flag-tag.ocr{background:rgba(74,90,107,.15);color:var(--ink-700)}
+
+  .act-btns{display:flex;gap:6px}
+  .act-btn{
+    width:28px;height:28px;border-radius:6px;border:1px solid var(--ink-100);
+    background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    font-size:12px;transition:all .15s;
+  }
+  .act-btn:hover{border-color:var(--ink-900)}
+  .act-btn.ok:hover{background:var(--ok);color:#fff;border-color:var(--ok)}
+  .act-btn.bad:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+
+  /* SETTINGS / THRESHOLDS */
+  .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .setting-card{background:var(--card);border:1px solid var(--ink-100);border-radius:14px;padding:22px}
+  .setting-card h4{font-family:'Fraunces',serif;font-size:18px;font-weight:500;margin-bottom:4px;letter-spacing:-.01em}
+  .setting-card .sd{font-size:12px;color:var(--ink-500);margin-bottom:20px}
+
+  .threshold-row{margin-bottom:20px}
+  .threshold-row .tl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .threshold-row .tl b{font-weight:600;font-size:13px}
+  .threshold-row .tl .val{font-family:'Fraunces',serif;font-size:20px;font-weight:500;color:var(--accent)}
+  .threshold-row .hint{font-size:11px;color:var(--ink-500);margin-bottom:10px}
+  .slider-track{height:6px;background:var(--ink-100);border-radius:3px;position:relative}
+  .slider-track .fill{height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));border-radius:3px}
+  .slider-track .knob{
+    position:absolute;top:50%;width:18px;height:18px;border-radius:50%;
+    background:var(--card);border:2px solid var(--accent);transform:translate(-50%,-50%);
+    box-shadow:var(--shadow-sm);
+  }
+  .slider-ticks{display:flex;justify-content:space-between;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-500)}
+
+  .integrations-list{display:flex;flex-direction:column;gap:10px}
+  .integ-row{
+    display:flex;align-items:center;gap:12px;padding:12px;
+    background:var(--paper);border-radius:10px;border:1px solid var(--ink-100);
+  }
+  .integ-icon{width:34px;height:34px;border-radius:8px;background:var(--ink-900);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+  .integ-row .in{flex:1;min-width:0}
+  .integ-row .in b{display:block;font-size:13px;font-weight:600}
+  .integ-row .in small{font-size:11px;color:var(--ink-500);font-family:'JetBrains Mono',monospace}
+  .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+  .status-dot.up{background:var(--ok);box-shadow:0 0 0 3px rgba(46,125,88,.15)}
+  .status-dot.warn{background:var(--warn);box-shadow:0 0 0 3px rgba(224,164,35,.15)}
+  .circuit-chip{
+    font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+    padding:4px 8px;border-radius:5px;letter-spacing:.06em;text-transform:uppercase;
+    background:rgba(46,125,88,.1);color:var(--ok);
+  }
+
+  /* ========== AUDIT LOG VIEWER ========== */
+  .audit-filters{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;
+    padding:16px 20px;background:var(--paper);border-bottom:1px solid var(--ink-100);
+  }
+  .audit-filter{display:flex;flex-direction:column;gap:4px}
+  .audit-filter label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500)}
+  .audit-filter input, .audit-filter select{
+    background:var(--card);border:1px solid var(--ink-100);padding:8px 12px;border-radius:8px;
+    font:inherit;font-size:12px;color:var(--ink-900);min-width:140px;
+  }
+  .audit-filter input:focus, .audit-filter select:focus{outline:none;border-color:var(--ink-900)}
+  .audit-filter.grow{flex:1;min-width:200px}
+  .audit-filter.grow input{width:100%;min-width:0}
+
+  .audit-log{
+    font-family:'JetBrains Mono',monospace;font-size:12px;
+    background:var(--ink-900);color:var(--ink-200);
+    border-radius:0 0 14px 14px;overflow:hidden;
+  }
+  .audit-log-head{
+    display:grid;grid-template-columns:140px 80px 120px 90px 1fr 60px;gap:12px;
+    padding:12px 20px;background:#0A1017;
+    font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-300);font-weight:600;
+    border-bottom:1px solid var(--ink-700);
+  }
+  .audit-entry{
+    display:grid;grid-template-columns:140px 80px 120px 90px 1fr 60px;gap:12px;
+    padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04);
+    align-items:center;cursor:pointer;transition:background .15s;
+  }
+  .audit-entry:hover{background:rgba(255,255,255,.02)}
+  .audit-entry .ts{color:var(--gold)}
+  .audit-entry .mod{
+    padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;
+    text-align:center;letter-spacing:.05em;
+  }
+  .audit-entry .mod.ocr{background:rgba(138,152,168,.2);color:#B9C3CF}
+  .audit-entry .mod.dup{background:rgba(31,78,70,.3);color:#6ab8a3}
+  .audit-entry .mod.ano{background:rgba(201,64,43,.25);color:#e88b77}
+  .audit-entry .mod.pol{background:rgba(195,154,62,.25);color:var(--gold)}
+  .audit-entry .mod.agg{background:rgba(255,255,255,.08);color:var(--paper)}
+  .audit-entry .hash{color:var(--ink-300);font-size:11px;letter-spacing:.02em}
+  .audit-entry .conf{color:var(--paper);font-weight:600}
+  .audit-entry .conf.low{color:#e88b77}
+  .audit-entry .conf.mid{color:var(--warn)}
+  .audit-entry .conf.high{color:#6ab8a3}
+  .audit-entry .msg{color:var(--ink-200);font-family:'Manrope',sans-serif;font-size:12px}
+  .audit-entry .msg code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;color:var(--paper);font-size:11px}
+  .audit-entry .chain{font-size:10px;color:var(--ok);text-align:right}
+  .audit-entry .chain.broken{color:var(--accent)}
+
+  .audit-expanded{
+    grid-column:1/-1;margin-top:6px;padding:16px;background:#070B10;border-radius:6px;
+    border-left:2px solid var(--gold);
+    font-size:11px;line-height:1.7;color:var(--ink-200);
+  }
+  .audit-expanded .row{display:flex;gap:12px}
+  .audit-expanded .row .k{color:var(--ink-300);min-width:110px;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+  .audit-expanded .row .v{color:var(--paper);flex:1;word-break:break-all}
+  .audit-expanded .row .v em{color:var(--gold);font-style:normal;font-weight:600}
+
+  .audit-summary{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:14px;
+    padding:20px;background:#0A1017;border-bottom:1px solid var(--ink-700);
+  }
+  .audit-summary .a{background:rgba(255,255,255,.04);padding:14px;border-radius:8px}
+  .audit-summary .a .k{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-300);margin-bottom:6px}
+  .audit-summary .a .v{font-family:'Fraunces',serif;font-size:22px;font-weight:500;color:var(--paper)}
+  .audit-summary .a .v.ok{color:#6ab8a3}
+  .audit-summary .a small{font-size:10px;color:var(--ink-300);margin-left:4px;font-family:'Manrope',sans-serif}
+
+  /* ========== POLICY RULES EDITOR ========== */
+  .policy-layout{
+    display:grid;grid-template-columns:320px 1fr;gap:0;
+    min-height:620px;
+  }
+  .policy-list{
+    border-right:1px solid var(--ink-100);
+    display:flex;flex-direction:column;
+  }
+  .policy-list-head{
+    padding:16px 20px;border-bottom:1px solid var(--ink-100);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .policy-list-head h4{font-family:'Fraunces',serif;font-size:16px;font-weight:500;letter-spacing:-.01em}
+  .policy-list-head .c{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-500);letter-spacing:.1em}
+
+  .policy-search{
+    padding:12px 20px;border-bottom:1px solid var(--ink-100);
+  }
+  .policy-search input{
+    width:100%;padding:8px 12px;background:var(--paper);border:1px solid var(--ink-100);
+    border-radius:8px;font:inherit;font-size:12px;
+  }
+  .policy-search input:focus{outline:none;border-color:var(--ink-900)}
+
+  .policy-items{flex:1;overflow-y:auto;padding:8px 0}
+  .policy-item{
+    padding:12px 20px;cursor:pointer;border-left:3px solid transparent;
+    transition:background .15s, border-color .15s;
+  }
+  .policy-item:hover{background:var(--paper)}
+  .policy-item.active{background:var(--paper);border-left-color:var(--accent)}
+  .policy-item .pi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .policy-item .pi-name{font-weight:600;font-size:13px}
+  .policy-item .pi-tag{
+    font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+    padding:2px 6px;border-radius:4px;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .policy-item .pi-tag.active{background:rgba(46,125,88,.12);color:var(--ok)}
+  .policy-item .pi-tag.draft{background:rgba(138,152,168,.2);color:var(--ink-500)}
+  .policy-item .pi-tag.breach{background:rgba(178,58,44,.12);color:var(--bad)}
+  .policy-item .pi-desc{font-size:11px;color:var(--ink-500);line-height:1.4}
+  .policy-item .pi-meta{display:flex;gap:10px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-300)}
+
+  .policy-editor{padding:24px 28px;overflow-y:auto}
+  .policy-editor-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--ink-100)}
+  .policy-editor-head .pt{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .policy-editor-head h3{font-family:'Fraunces',serif;font-size:24px;font-weight:500;letter-spacing:-.015em}
+  .policy-editor-head .meta{font-size:11px;color:var(--ink-500);margin-top:4px;font-family:'JetBrains Mono',monospace}
+  .policy-editor-head .acts{display:flex;gap:8px;flex-shrink:0}
+
+  .editor-section{margin-bottom:24px}
+  .editor-section h5{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ink-500);margin-bottom:12px;display:flex;align-items:center;gap:10px;
+  }
+  .editor-section h5::before{content:'';width:18px;height:1px;background:var(--accent-2)}
+
+  .form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+  .editor-field{display:flex;flex-direction:column;gap:5px}
+  .editor-field label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-500)}
+  .editor-field input, .editor-field select, .editor-field textarea{
+    background:var(--card);border:1px solid var(--ink-100);padding:10px 12px;border-radius:8px;
+    font:inherit;font-size:13px;color:var(--ink-900);font-family:'Manrope',sans-serif;
+  }
+  .editor-field input:focus, .editor-field select:focus, .editor-field textarea:focus{outline:none;border-color:var(--ink-900)}
+  .editor-field small{font-size:10px;color:var(--ink-500)}
+  .editor-field .input-prefix{
+    display:flex;align-items:center;background:var(--card);border:1px solid var(--ink-100);border-radius:8px;overflow:hidden;
+  }
+  .editor-field .input-prefix .pre{padding:10px 12px;background:var(--paper-2);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-500);border-right:1px solid var(--ink-100)}
+  .editor-field .input-prefix input{border:none;flex:1;border-radius:0}
+
+  /* Chip selector */
+  .chip-selector{display:flex;gap:6px;flex-wrap:wrap}
+  .chip-opt{
+    padding:6px 12px;border-radius:20px;border:1px solid var(--ink-100);
+    font-size:12px;cursor:pointer;background:var(--card);transition:all .15s;
+  }
+  .chip-opt:hover{border-color:var(--ink-700)}
+  .chip-opt.sel{background:var(--ink-900);color:var(--paper);border-color:var(--ink-900)}
+  .chip-opt.sel.bad{background:var(--accent);border-color:var(--accent)}
+
+  /* Toggle */
+  .toggle-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 14px;background:var(--paper);border-radius:10px;margin-bottom:8px;
+  }
+  .toggle-row .tl{flex:1}
+  .toggle-row .tl b{display:block;font-size:13px;font-weight:600}
+  .toggle-row .tl small{font-size:11px;color:var(--ink-500)}
+  .toggle-switch{
+    width:38px;height:22px;background:var(--ink-200);border-radius:11px;
+    position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;
+  }
+  .toggle-switch::after{
+    content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;
+    background:#fff;border-radius:50%;transition:left .2s;
+    box-shadow:var(--shadow-sm);
+  }
+  .toggle-switch.on{background:var(--accent-2)}
+  .toggle-switch.on::after{left:18px}
+
+  /* JSON preview */
+  .json-preview{
+    background:var(--ink-900);color:var(--ink-200);border-radius:10px;padding:16px 18px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;
+    overflow-x:auto;
+  }
+  .json-preview .jk{color:#e88b77}
+  .json-preview .js{color:#6ab8a3}
+  .json-preview .jn{color:var(--gold)}
+  .json-preview .jb{color:#b8a0ff}
+  .json-preview .jc{color:var(--ink-300);font-style:italic}
+
+  .test-panel{
+    background:linear-gradient(135deg, rgba(31,78,70,.05), rgba(195,154,62,.05));
+    border:1px solid var(--ink-100);border-radius:12px;padding:18px;
+  }
+  .test-panel h5{margin-bottom:10px}
+  .test-panel .tr-result{
+    display:flex;gap:12px;align-items:center;padding:12px;background:var(--card);border-radius:8px;margin-top:10px;
+  }
+  .test-panel .tr-result .ti{
+    width:32px;height:32px;border-radius:8px;background:var(--ok);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;
+  }
+  .test-panel .tr-result .ti.fail{background:var(--bad)}
+  .test-panel .tr-result .td{flex:1}
+  .test-panel .tr-result .td b{display:block;font-size:13px;font-weight:600}
+  .test-panel .tr-result .td small{font-size:11px;color:var(--ink-500);font-family:'JetBrains Mono',monospace}
+  .test-panel .tr-result .tv{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--ok)}
+  .test-panel .tr-result .tv.fail{color:var(--bad)}
+
+  /* FOOTER */
+  .page-footer{
+    background:var(--ink-900);color:var(--ink-300);padding:36px 48px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    border-top:1px solid var(--ink-700);
+  }
+  .page-footer .brand{font-family:'Fraunces',serif;color:var(--paper);font-size:18px;font-weight:500}
+  .page-footer .brand em{color:var(--gold);font-style:italic;font-weight:300}
+  .page-footer .tech{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .page-footer .tech b{color:var(--paper);font-weight:500}
+
+  /* SECTION DIVIDER */
+  .divider{
+    margin:72px 0 48px;display:flex;align-items:center;gap:20px;
+    color:var(--ink-300);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  }
+  .divider::before, .divider::after{content:'';flex:1;height:1px;background:var(--ink-200)}
+
+  @media (max-width:900px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr)}
+    .dash-grid, .settings-grid{grid-template-columns:1fr}
+    .admin-shell{grid-template-columns:1fr}
+    .admin-sidebar{display:none}
+    .container{padding:32px 20px}
+    .page-header{padding:24px 24px 32px}
+    .page-header h1{font-size:32px}
+    .policy-layout{grid-template-columns:1fr}
+    .policy-list{border-right:none;border-bottom:1px solid var(--ink-100);max-height:400px}
+    .audit-summary{grid-template-columns:repeat(2,1fr)}
+    .audit-log-head, .audit-entry{grid-template-columns:100px 60px 1fr;font-size:11px}
+    .audit-log-head span:nth-child(n+4), .audit-entry span:nth-child(n+4){display:none}
+    .form-grid-2, .form-grid-3{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== PAGE HEADER ========== -->
+<header class="page-header">
+  <div class="eyebrow">UC10 · TransitCoders · Amnex Sarjan 2026</div>
+  <h1>An <em>intelligent</em> auditor for every rupee of expense.</h1>
+  <p class="sub">A complete graphical interface blueprint for the Artificial Intelligence Expense Report Auditor — mobile submission, AI pipeline visibility, and administrator controls. Translatable to Angular &amp; .NET&nbsp;Core.</p>
+  <div class="meta">
+    <span><b>Front-end</b> &nbsp; Angular 17 · TypeScript · Tailwind</span>
+    <span><b>Back-end</b> &nbsp; .NET Core 8 Web API · MongoDB</span>
+    <span><b>AI</b> &nbsp; GPT-4o Vision · Isolation Forest · pHash</span>
+    <span><b>Version</b> &nbsp; GUI-BP v1.0</span>
+  </div>
+</header>
+
+<!-- ========== MOBILE SCREENS ========== -->
+<main class="container">
+
+  <div class="section-label">Part I — Employee Mobile Experience</div>
+  <h2 class="section-title">Four screens. One honest flow.</h2>
+  <p class="section-desc">Login, capture, acknowledge, result. Every screen expands acronyms on first use (FR-10.1), and every decision carries an explanation in finance-team tone.</p>
+
+  <div class="mobile-row">
+
+    <!-- ===== SCREEN 1: LOGIN ===== -->
+    <div>
+      <div class="phone-label"><b>01</b> Login / Register</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:41</span>
+            <div class="right">
+              <span>●●●</span><span>●</span><span>100%</span>
+            </div>
+          </div>
+          <div class="mob-body">
+            <div class="login-hero">
+              <div class="tag">Secure Sign-In · JWT</div>
+              <h2>Welcome to <em>Ledger</em> AI.</h2>
+              <p>Artificial Intelligence (AI) that reads your receipts, checks policy, and keeps finance&nbsp;honest.</p>
+            </div>
+
+            <div class="field">
+              <label>Work email</label>
+              <input type="email" value="priya.sharma@transitcoders.com">
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" value="••••••••••••">
+              <small>Stored as salted bcrypt hash · FR-1.4</small>
+            </div>
+
+            <button class="btn btn-primary btn-block">Sign in &nbsp; →</button>
+            <div class="divider-row">or</div>
+            <button class="btn btn-ghost btn-block">Create an account</button>
+
+            <div class="switch-link">New to Ledger? <a href="#">Start your registration →</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 2: SUBMIT ===== -->
+    <div>
+      <div class="phone-label"><b>02</b> Submit a receipt</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:43</span>
+            <div class="right">
+              <span>●●●</span><span>●</span><span>100%</span>
+            </div>
+          </div>
+          <div class="mob-body">
+            <div class="mob-topbar">
+              <div class="mob-logo"><span class="dot"></span> Ledger</div>
+              <div class="mob-avatar">PS</div>
+            </div>
+
+            <div class="submit-greet">
+              <div class="hi">Friday, 24 April</div>
+              <h3>Hi Priya — what's the spend?</h3>
+            </div>
+
+            <div class="capture-card">
+              <div class="capture-zone">
+                <div class="icon">◉</div>
+                <h4>Capture a receipt</h4>
+                <p>Shoot a photo or pick from gallery.<br>Optical Character Recognition (OCR) handles the rest.</p>
+              </div>
+              <div class="capture-actions">
+                <button class="btn btn-accent">📷 Camera</button>
+                <button class="btn btn-ghost">🖼 Gallery</button>
+              </div>
+            </div>
+
+            <div class="recent-submissions">
+              <h5>Recent · Last 7 days</h5>
+              <div class="recent-item">
+                <div class="recent-thumb">☕</div>
+                <div class="recent-meta">
+                  <div class="v">Blue Tokai Coffee</div>
+                  <div class="d">REF · 8F2A · ₹ 2,480</div>
+                </div>
+                <span class="chip ok">Approved</span>
+              </div>
+              <div class="recent-item">
+                <div class="recent-thumb">🚕</div>
+                <div class="recent-meta">
+                  <div class="v">Ola Cabs (Mumbai)</div>
+                  <div class="d">REF · 7C1E · ₹ 648</div>
+                </div>
+                <span class="chip warn">In review</span>
+              </div>
+              <div class="recent-item">
+                <div class="recent-thumb">🍽</div>
+                <div class="recent-meta">
+                  <div class="v">Indian Accent</div>
+                  <div class="d">REF · 5B9D · ₹ 12,300</div>
+                </div>
+                <span class="chip bad">Rejected</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 3: ACKNOWLEDGEMENT ===== -->
+    <div>
+      <div class="phone-label"><b>03</b> Acknowledgement</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:44</span>
+            <div class="right">
+              <span>●●●</span><span>●</span><span>100%</span>
+            </div>
+          </div>
+          <div class="mob-body">
+            <div class="mob-topbar">
+              <div class="mob-logo"><span class="dot"></span> Ledger</div>
+              <div class="mob-avatar">PS</div>
+            </div>
+
+            <div class="ack-card">
+              <div class="ack-tick">✓</div>
+              <h3>Received.</h3>
+              <p>Your receipt is in the AI pipeline.<br>We'll notify you within a few seconds.</p>
+              <div class="ref-pill">
+                <span class="k">Ref</span>
+                <span>EXP-2026-04-A39F-7C2B</span>
+              </div>
+            </div>
+
+            <div class="pipeline">
+              <h5>AI Pipeline · Live</h5>
+              <div class="pipe-step done">
+                <div class="bullet">✓</div>
+                <div class="lbl">Image uploaded &amp; persisted</div>
+                <div class="t">0.4s</div>
+              </div>
+              <div class="pipe-step done">
+                <div class="bullet">✓</div>
+                <div class="lbl">Optical Character Recognition</div>
+                <div class="t">1.8s</div>
+              </div>
+              <div class="pipe-step active">
+                <div class="bullet">◉</div>
+                <div class="lbl">Duplicate &amp; anomaly checks</div>
+                <div class="t">…</div>
+              </div>
+              <div class="pipe-step wait">
+                <div class="bullet">○</div>
+                <div class="lbl">Policy rule engine</div>
+                <div class="t">queued</div>
+              </div>
+              <div class="pipe-step wait">
+                <div class="bullet">○</div>
+                <div class="lbl">Goods &amp; Services Tax Identification Number (GSTIN) lookup</div>
+                <div class="t">queued</div>
+              </div>
+            </div>
+
+            <button class="btn btn-ghost btn-block">Submit another receipt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCREEN 4: RESULT ===== -->
+    <div>
+      <div class="phone-label"><b>04</b> AI Decision</div>
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-status">
+            <span>9:44</span>
+            <div class="right">
+              <span>●●●</span><span>●</span><span>100%</span>
+            </div>
+          </div>
+          <div class="mob-body">
+
+            <div class="result-head">
+              <div class="status-badge">
+                <span class="d"></span> Needs Review
+              </div>
+              <h3>Indian Accent · Fine dining, New Delhi</h3>
+              <div class="amt">
+                <span class="big">₹ 12,300</span>
+                <span class="ccy">INR · 22 Apr 2026</span>
+              </div>
+              <div class="conf-meter">
+                <div class="lbl">
+                  <span>Confidence</span>
+                  <b>0.62 · Below 0.60 threshold</b>
+                </div>
+                <div class="conf-bar"><div class="fill"></div></div>
+                <small>Routed to a financial analyst for human review (FR-6.3).</small>
+              </div>
+            </div>
+
+            <div class="explain-card">
+              <div class="k">Why this result</div>
+              <p>The receipt totals <em>₹ 12,300</em>, which sits <em>above the ₹ 10,000 dining cap</em> for your grade. The vendor's GSTIN verified successfully, but the <em>day-of-week pattern is unusual</em> against your six-month history. A human analyst will decide within one business day.</p>
+            </div>
+
+            <div class="module-breakdown">
+              <h5>Module breakdown <span>weights in parens</span></h5>
+              <div class="module-row ocr">
+                <div class="m-icon">O</div>
+                <div class="m-name">OCR extraction <small>vendor, total, GSTIN, date — v1.2.0 (0.3)</small></div>
+                <div class="m-score">0.94</div>
+                <div class="m-flag ok">Pass</div>
+              </div>
+              <div class="module-row dup">
+                <div class="m-icon">D</div>
+                <div class="m-name">Duplicate detection <small>pHash · Hamming 14 ≥ 8 (0.2)</small></div>
+                <div class="m-score">0.88</div>
+                <div class="m-flag ok">Pass</div>
+              </div>
+              <div class="module-row ano">
+                <div class="m-icon">A</div>
+                <div class="m-name">Anomaly detection <small>Isolation Forest · 0.41 score (0.2)</small></div>
+                <div class="m-score">0.41</div>
+                <div class="m-flag warn">Unusual</div>
+              </div>
+              <div class="module-row pol">
+                <div class="m-icon">P</div>
+                <div class="m-name">Policy rule engine <small>Cap breached · dining ₹10,000 (0.3)</small></div>
+                <div class="m-score">0.35</div>
+                <div class="m-flag warn">Breach</div>
+              </div>
+            </div>
+
+            <div class="result-actions">
+              <button class="btn btn-ghost">View receipt</button>
+              <button class="btn btn-primary">Request review →</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== DIVIDER ========== -->
+  <div class="divider">Administrator Console</div>
+
+  <!-- ========== ADMIN DASHBOARD ========== -->
+  <div class="section-label">Part II — Compliance &amp; Operations Console</div>
+  <h2 class="section-title">Eyes on every invocation.</h2>
+  <p class="section-desc">Real-time submission volumes, confidence distribution, module health, the human review queue, and runtime threshold tuning — all without a redeploy.</p>
+
+  <div class="admin-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand"><span class="dot"></span> Ledger <em>AI</em></div>
+
+      <div class="nav-group-label">Operate</div>
+      <div class="nav-item active"><span class="i">◐</span> Dashboard</div>
+      <div class="nav-item"><span class="i">⚑</span> Review queue <span class="badge">24</span></div>
+      <div class="nav-item"><span class="i">▤</span> All expenses</div>
+      <div class="nav-item"><span class="i">◉</span> AI invocations</div>
+
+      <div class="nav-group-label">Govern</div>
+      <div class="nav-item"><span class="i">⚙</span> Thresholds</div>
+      <div class="nav-item"><span class="i">§</span> Policy rules</div>
+      <div class="nav-item"><span class="i">◈</span> Audit log</div>
+      <div class="nav-item"><span class="i">↓</span> Export (CSV)</div>
+
+      <div class="nav-group-label">System</div>
+      <div class="nav-item"><span class="i">❋</span> Integrations</div>
+      <div class="nav-item"><span class="i">⚑</span> Users &amp; roles</div>
+
+      <div class="admin-footer">
+        <div class="av">MK</div>
+        <div class="who">
+          <b>Meera Kulkarni</b>
+          <span>Compliance · Admin</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <section class="admin-main">
+      <div class="admin-topbar">
+        <div class="title">
+          <div class="eye">Live · refresh 5s</div>
+          <h2>Good morning, Meera.</h2>
+          <p>24 items are awaiting your review. 3 external Application Programming Interfaces (APIs) are healthy.</p>
+        </div>
+        <div class="actions">
+          <div class="search-bar">
+            <span>⌕</span>
+            <span>Search by ref, vendor, user…</span>
+            <kbd>⌘K</kbd>
+          </div>
+          <button class="btn btn-ghost btn-sm">↓ Export CSV</button>
+          <button class="btn btn-primary btn-sm">+ New policy</button>
+        </div>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="kpi-grid">
+        <div class="kpi accent">
+          <div class="k">Submissions · 24h</div>
+          <div class="v">1,284<small>receipts</small></div>
+          <div class="delta up">▲ 12.4% vs. yesterday</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Avg. confidence</div>
+          <div class="v">0.81</div>
+          <div class="delta up">▲ 0.04 this week</div>
+        </div>
+        <div class="kpi">
+          <div class="k">Auto-approved</div>
+          <div class="v">74.2<small>%</small></div>
+          <div class="delta flat">— stable</div>
+        </div>
+        <div class="kpi">
+          <div class="k">External error rate</div>
+          <div class="v">0.6<small>%</small></div>
+          <div class="delta down">▼ 0.3% circuit-breaker firing</div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD GRID -->
+      <div class="dash-grid">
+
+        <!-- HISTOGRAM -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="h">Confidence distribution</div>
+              <div class="s">Last 24 hours · 10 buckets (FR-7.1)</div>
+            </div>
+            <div class="tabs">
+              <span>1h</span>
+              <span class="active">24h</span>
+              <span>7d</span>
+            </div>
+          </div>
+
+          <div class="histo">
+            <div class="histo-bar low" style="height:12%"><span class="c">14</span></div>
+            <div class="histo-bar low" style="height:18%"><span class="c">22</span></div>
+            <div class="histo-bar low" style="height:28%"><span class="c">38</span></div>
+            <div class="histo-bar low" style="height:34%"><span class="c">48</span></div>
+            <div class="histo-bar low" style="height:42%"><span class="c">62</span></div>
+            <div class="histo-bar mid" style="height:56%"><span class="c">84</span></div>
+            <div class="histo-bar mid" style="height:70%"><span class="c">108</span></div>
+            <div class="histo-bar high" style="height:82%"><span class="c">146</span></div>
+            <div class="histo-bar high" style="height:94%"><span class="c">198</span></div>
+            <div class="histo-bar high" style="height:100%"><span class="c">224</span></div>
+          </div>
+          <div class="histo-axis">
+            <span>0.0</span><span>0.1</span><span>0.2</span><span>0.3</span><span>0.4</span>
+            <span>0.5</span><span>0.6</span><span>0.7</span><span>0.8</span><span>0.9</span><span>1.0</span>
+          </div>
+          <div class="histo-legend">
+            <span><span class="sw" style="background:var(--accent)"></span> Review &lt; 0.60</span>
+            <span><span class="sw" style="background:var(--warn)"></span> Watchlist</span>
+            <span><span class="sw" style="background:var(--ok)"></span> Auto-approve</span>
+          </div>
+        </div>
+
+        <!-- MODULE HEALTH -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="h">AI module health</div>
+              <div class="s">Avg. module score · 24h</div>
+            </div>
+          </div>
+          <div class="mod-list">
+            <div class="mod-row">
+              <div class="mi ocr">O</div>
+              <div class="mc">
+                <div class="n">Optical Character Recognition</div>
+                <div class="x">GPT-4o Vision · prompt ocr_v1.2.0</div>
+              </div>
+              <div class="mprog">
+                <div class="mbar"><div class="f" style="width:94%"></div></div>
+                <div class="ms">0.94</div>
+              </div>
+            </div>
+            <div class="mod-row">
+              <div class="mi dup">D</div>
+              <div class="mc">
+                <div class="n">Duplicate detection</div>
+                <div class="x">pHash · Hamming distance</div>
+              </div>
+              <div class="mprog">
+                <div class="mbar"><div class="f" style="width:88%"></div></div>
+                <div class="ms">0.88</div>
+              </div>
+            </div>
+            <div class="mod-row">
+              <div class="mi ano">A</div>
+              <div class="mc">
+                <div class="n">Anomaly detection</div>
+                <div class="x">Isolation Forest · z-score fallback</div>
+              </div>
+              <div class="mprog">
+                <div class="mbar"><div class="f" style="width:76%;background:var(--warn)"></div></div>
+                <div class="ms">0.76</div>
+              </div>
+            </div>
+            <div class="mod-row">
+              <div class="mi pol">P</div>
+              <div class="mc">
+                <div class="n">Policy rule engine</div>
+                <div class="x">JSON rules · GPT-4o ambiguity</div>
+              </div>
+              <div class="mprog">
+                <div class="mbar"><div class="f" style="width:82%"></div></div>
+                <div class="ms">0.82</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- REVIEW QUEUE TABLE -->
+      <div class="panel table-panel">
+        <div class="panel-head">
+          <div>
+            <div class="h">Human review queue</div>
+            <div class="s">Items below the 0.60 confidence threshold, oldest first · FR-7.6</div>
+          </div>
+          <div class="tabs">
+            <span class="active">All (24)</span>
+            <span>Flagged duplicates</span>
+            <span>Policy breaches</span>
+          </div>
+        </div>
+
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>Ref</th>
+              <th>Submitted by</th>
+              <th>Vendor</th>
+              <th>Amount</th>
+              <th>Confidence</th>
+              <th>Flags</th>
+              <th>When</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="refid">EXP-A39F-7C2B</td>
+              <td>Priya Sharma</td>
+              <td><div class="vendor-cell"><div class="vthumb">🍽</div><div><b>Indian Accent</b><small>Restaurant · Delhi</small></div></div></td>
+              <td class="amt-cell">₹ 12,300</td>
+              <td><div class="conf-cell"><div class="cbar"><div class="f mid"></div></div><span class="cv">0.62</span></div></td>
+              <td><div class="flags"><span class="flag-tag pol">Policy</span><span class="flag-tag ano">Anomaly</span></div></td>
+              <td>2m ago</td>
+              <td><div class="act-btns"><button class="act-btn ok" title="Approve">✓</button><button class="act-btn bad" title="Reject">✕</button><button class="act-btn" title="Details">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td class="refid">EXP-B712-91A4</td>
+              <td>Rohan Mehta</td>
+              <td><div class="vendor-cell"><div class="vthumb">🚕</div><div><b>Uber India</b><small>Transport · Mumbai</small></div></div></td>
+              <td class="amt-cell">₹ 648</td>
+              <td><div class="conf-cell"><div class="cbar"><div class="f low"></div></div><span class="cv">0.38</span></div></td>
+              <td><div class="flags"><span class="flag-tag dup">Duplicate</span></div></td>
+              <td>14m ago</td>
+              <td><div class="act-btns"><button class="act-btn ok">✓</button><button class="act-btn bad">✕</button><button class="act-btn">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td class="refid">EXP-C824-33E1</td>
+              <td>Anjali Desai</td>
+              <td><div class="vendor-cell"><div class="vthumb">✈</div><div><b>IndiGo Airlines</b><small>Travel · BLR → DEL</small></div></div></td>
+              <td class="amt-cell">₹ 8,450</td>
+              <td><div class="conf-cell"><div class="cbar"><div class="f mid"></div></div><span class="cv">0.57</span></div></td>
+              <td><div class="flags"><span class="flag-tag ocr">OCR</span><span class="flag-tag pol">GSTIN</span></div></td>
+              <td>28m ago</td>
+              <td><div class="act-btns"><button class="act-btn ok">✓</button><button class="act-btn bad">✕</button><button class="act-btn">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td class="refid">EXP-D551-08F7</td>
+              <td>Karan Bhatia</td>
+              <td><div class="vendor-cell"><div class="vthumb">🏨</div><div><b>Taj Bengaluru</b><small>Hotel · Bangalore</small></div></div></td>
+              <td class="amt-cell">₹ 24,750</td>
+              <td><div class="conf-cell"><div class="cbar"><div class="f low"></div></div><span class="cv">0.42</span></div></td>
+              <td><div class="flags"><span class="flag-tag pol">Policy</span></div></td>
+              <td>41m ago</td>
+              <td><div class="act-btns"><button class="act-btn ok">✓</button><button class="act-btn bad">✕</button><button class="act-btn">⋯</button></div></td>
+            </tr>
+            <tr>
+              <td class="refid">EXP-E103-55A0</td>
+              <td>Sneha Iyer</td>
+              <td><div class="vendor-cell"><div class="vthumb">☕</div><div><b>Third Wave Coffee</b><small>Café · Pune</small></div></div></td>
+              <td class="amt-cell">₹ 412</td>
+              <td><div class="conf-cell"><div class="cbar"><div class="f mid"></div></div><span class="cv">0.58</span></div></td>
+              <td><div class="flags"><span class="flag-tag ano">Anomaly</span></div></td>
+              <td>1h ago</td>
+              <td><div class="act-btns"><button class="act-btn ok">✓</button><button class="act-btn bad">✕</button><button class="act-btn">⋯</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- SETTINGS GRID -->
+      <div class="settings-grid">
+
+        <div class="setting-card">
+          <h4>Runtime thresholds</h4>
+          <p class="sd">Tune and save — changes propagate in under five seconds, no redeploy (FR-7.2, FR-7.3).</p>
+
+          <div class="threshold-row">
+            <div class="tl">
+              <b>Confidence floor</b>
+              <span class="val">0.60</span>
+            </div>
+            <div class="hint">Below this, expenses are auto-routed to the review queue.</div>
+            <div class="slider-track">
+              <div class="fill" style="width:60%"></div>
+              <div class="knob" style="left:60%"></div>
+            </div>
+            <div class="slider-ticks"><span>0.0</span><span>0.5</span><span>1.0</span></div>
+          </div>
+
+          <div class="threshold-row">
+            <div class="tl">
+              <b>Duplicate Hamming distance</b>
+              <span class="val">8</span>
+            </div>
+            <div class="hint">pHash distance below this flags a receipt as a likely duplicate.</div>
+            <div class="slider-track">
+              <div class="fill" style="width:32%"></div>
+              <div class="knob" style="left:32%"></div>
+            </div>
+            <div class="slider-ticks"><span>0</span><span>12</span><span>24</span></div>
+          </div>
+
+          <div class="threshold-row">
+            <div class="tl">
+              <b>Submissions per user · hour</b>
+              <span class="val">30</span>
+            </div>
+            <div class="hint">Rate limit before progressive back-off kicks in.</div>
+            <div class="slider-track">
+              <div class="fill" style="width:50%"></div>
+              <div class="knob" style="left:50%"></div>
+            </div>
+            <div class="slider-ticks"><span>5</span><span>30</span><span>60</span></div>
+          </div>
+
+          <button class="btn btn-primary" style="margin-top:4px">Save thresholds</button>
+        </div>
+
+        <div class="setting-card">
+          <h4>External integrations</h4>
+          <p class="sd">Every outbound call is wrapped in retry + circuit breaker (FR-5.2).</p>
+
+          <div class="integrations-list">
+            <div class="integ-row">
+              <div class="integ-icon">AI</div>
+              <div class="in">
+                <b><span class="status-dot up"></span>OpenAI · GPT-4o Vision</b>
+                <small>p50 1.4s · p95 2.8s · 5s timeout</small>
+              </div>
+              <span class="circuit-chip">Closed</span>
+            </div>
+            <div class="integ-row">
+              <div class="integ-icon">AI</div>
+              <div class="in">
+                <b><span class="status-dot up"></span>OpenAI · GPT-4o Text</b>
+                <small>Policy ambiguity + explanations</small>
+              </div>
+              <span class="circuit-chip">Closed</span>
+            </div>
+            <div class="integ-row">
+              <div class="integ-icon">GST</div>
+              <div class="in">
+                <b><span class="status-dot warn"></span>GSTIN lookup · free tier</b>
+                <small>2 retries this hour · 3s timeout</small>
+              </div>
+              <span class="circuit-chip" style="background:rgba(224,164,35,.15);color:#8a6100">Half-open</span>
+            </div>
+            <div class="integ-row">
+              <div class="integ-icon">DB</div>
+              <div class="in">
+                <b><span class="status-dot up"></span>MongoDB · primary</b>
+                <small>audit_log · expenses · review_queue</small>
+              </div>
+              <span class="circuit-chip">Healthy</span>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding:14px;background:var(--paper);border-radius:10px;border:1px dashed var(--ink-200)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-500);margin-bottom:6px">Audit hash chain</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--ok)">✓ Verified · 1,284 entries · no divergence</div>
+            <div style="font-size:11px;color:var(--ink-500);margin-top:4px">Last tip: <code style="font-family:'JetBrains Mono',monospace">e7a2…91f3</code> · FR-8.3</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  </div>
+
+  <!-- ========== AUDIT LOG VIEWER ========== -->
+  <div class="divider">Screen · Audit Log Viewer</div>
+
+  <div class="section-label">Compliance · Tamper-evident trail</div>
+  <h2 class="section-title">Every invocation, on the record.</h2>
+  <p class="section-desc">A hash-chained, append-only log of every Artificial Intelligence (AI) decision with Personally Identifiable Information (PII) redacted at write time. Click any row to expand the full payload (FR-8.1 through FR-8.5).</p>
+
+  <div class="panel" style="padding:0;overflow:hidden">
+
+    <!-- SUMMARY BAR -->
+    <div class="audit-summary">
+      <div class="a">
+        <div class="k">Entries</div>
+        <div class="v">48,216</div>
+      </div>
+      <div class="a">
+        <div class="k">Hash chain</div>
+        <div class="v ok">✓ Verified</div>
+      </div>
+      <div class="a">
+        <div class="k">First divergence</div>
+        <div class="v" style="font-size:14px;color:#6ab8a3;line-height:1.4;padding-top:4px">None detected<br><small>re-verified 12s ago</small></div>
+      </div>
+      <div class="a">
+        <div class="k">PII redactions</div>
+        <div class="v">3,842<small>events</small></div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="audit-filters">
+      <div class="audit-filter">
+        <label>From</label>
+        <input type="text" value="2026-04-24 00:00">
+      </div>
+      <div class="audit-filter">
+        <label>To</label>
+        <input type="text" value="2026-04-24 23:59">
+      </div>
+      <div class="audit-filter">
+        <label>Module</label>
+        <select>
+          <option>All modules</option>
+          <option>OCR</option>
+          <option>Duplicate</option>
+          <option>Anomaly</option>
+          <option>Policy</option>
+          <option>Aggregator</option>
+        </select>
+      </div>
+      <div class="audit-filter">
+        <label>Outcome</label>
+        <select>
+          <option>All</option>
+          <option>Approved</option>
+          <option>Needs review</option>
+          <option>Rejected</option>
+        </select>
+      </div>
+      <div class="audit-filter grow">
+        <label>Search (ref, user, vendor)</label>
+        <input type="text" placeholder="e.g. EXP-A39F-7C2B or priya.sharma">
+      </div>
+      <button class="btn btn-primary btn-sm">Apply</button>
+      <button class="btn btn-ghost btn-sm">↓ Export CSV (PII-redacted)</button>
+    </div>
+
+    <!-- AUDIT LOG STREAM -->
+    <div class="audit-log">
+
+      <div class="audit-log-head">
+        <span>Timestamp · UTC</span>
+        <span>Module</span>
+        <span>Ref ID</span>
+        <span>Confidence</span>
+        <span>Event</span>
+        <span>Chain</span>
+      </div>
+
+      <!-- Row 1 - EXPANDED -->
+      <div class="audit-entry" style="background:rgba(255,255,255,.02)">
+        <span class="ts">09:44:18.214</span>
+        <span class="mod agg">AGG</span>
+        <span class="hash">EXP-A39F-7C2B</span>
+        <span class="conf mid">0.62</span>
+        <span class="msg">Decision: <code>needs_review</code> · weighted aggregate of 4 modules</span>
+        <span class="chain">✓ 0x7a3c</span>
+
+        <div class="audit-expanded">
+          <div class="row"><span class="k">entry_id</span><span class="v"><em>audit_2026_04_24_018422</em></span></div>
+          <div class="row"><span class="k">user_id</span><span class="v">usr_8f2a··· <span style="color:var(--ink-500)">(bcrypt-linked, name redacted)</span></span></div>
+          <div class="row"><span class="k">expense_id</span><span class="v">EXP-A39F-7C2B</span></div>
+          <div class="row"><span class="k">prompt_version</span><span class="v">ocr_v1.2.0 · policy_v2.1.0 · explain_v1.0.0</span></div>
+          <div class="row"><span class="k">model</span><span class="v">gpt-4o-2024-11-20 (vision + text)</span></div>
+          <div class="row"><span class="k">module_scores</span><span class="v">ocr=0.94 · dup=0.88 · ano=0.41 · pol=0.35 → <em>agg=0.62</em></span></div>
+          <div class="row"><span class="k">explanation</span><span class="v">"Receipt total ₹12,300 exceeds dining cap. Day-of-week anomaly against 6-month history. Routed to analyst."</span></div>
+          <div class="row"><span class="k">prev_hash</span><span class="v">b4e1c2···a7f9 · genesis-depth 48,215</span></div>
+          <div class="row"><span class="k">hash</span><span class="v"><em>0x7a3c8f··· (SHA-256 of canonical JSON)</em></span></div>
+          <div class="row"><span class="k">latency_ms</span><span class="v">4,182 (within 5s budget)</span></div>
+        </div>
+      </div>
+
+      <div class="audit-entry">
+        <span class="ts">09:44:17.996</span>
+        <span class="mod pol">POL</span>
+        <span class="hash">EXP-A39F-7C2B</span>
+        <span class="conf low">0.35</span>
+        <span class="msg">Rule breach: <code>dining_cap_grade_L3</code> · amount ₹12,300 &gt; ₹10,000 cap</span>
+        <span class="chain">✓ ef91</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:44:17.612</span>
+        <span class="mod ano">ANO</span>
+        <span class="hash">EXP-A39F-7C2B</span>
+        <span class="conf low">0.41</span>
+        <span class="msg">Isolation Forest · day-of-week + vendor_category outlier · score=-0.12</span>
+        <span class="chain">✓ 88b2</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:44:16.983</span>
+        <span class="mod dup">DUP</span>
+        <span class="hash">EXP-A39F-7C2B</span>
+        <span class="conf high">0.88</span>
+        <span class="msg">pHash check · min Hamming=14 against 142 prior hashes · no duplicate</span>
+        <span class="chain">✓ 4d0a</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:44:14.441</span>
+        <span class="mod ocr">OCR</span>
+        <span class="hash">EXP-A39F-7C2B</span>
+        <span class="conf high">0.94</span>
+        <span class="msg">Extracted: vendor=<code>Indian Accent</code> · total=<code>12300.00</code> · GSTIN verified</span>
+        <span class="chain">✓ c7e5</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:58.102</span>
+        <span class="mod agg">AGG</span>
+        <span class="hash">EXP-B712-91A4</span>
+        <span class="conf low">0.38</span>
+        <span class="msg">Decision: <code>needs_review</code> · duplicate suspected</span>
+        <span class="chain">✓ 1fa8</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:57.820</span>
+        <span class="mod dup">DUP</span>
+        <span class="hash">EXP-B712-91A4</span>
+        <span class="conf low">0.12</span>
+        <span class="msg">pHash match · Hamming=3 against <code>EXP-9A22-00E1</code> (11 days ago) — <em style="color:var(--warn)">duplicate likely</em></span>
+        <span class="chain">✓ 6b3d</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:55.277</span>
+        <span class="mod ocr">OCR</span>
+        <span class="hash">EXP-B712-91A4</span>
+        <span class="conf high">0.91</span>
+        <span class="msg">Extracted: vendor=<code>Uber India</code> · total=<code>648.00</code> · no GSTIN (below threshold)</span>
+        <span class="chain">✓ 9c41</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:42.108</span>
+        <span class="mod agg">AGG</span>
+        <span class="hash">EXP-F004-21CC</span>
+        <span class="conf high">0.92</span>
+        <span class="msg">Decision: <code>approved</code> · auto-approved, all modules above threshold</span>
+        <span class="chain">✓ 2e7f</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:39.554</span>
+        <span class="mod pol">POL</span>
+        <span class="hash">EXP-F004-21CC</span>
+        <span class="conf high">0.95</span>
+        <span class="msg">All rules passed · <code>transport_cap</code>, <code>gstin_required</code>, <code>time_window</code></span>
+        <span class="chain">✓ a8c1</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:37.122</span>
+        <span class="mod ano">ANO</span>
+        <span class="hash">EXP-F004-21CC</span>
+        <span class="conf high">0.89</span>
+        <span class="msg">Isolation Forest · within typical pattern · score=0.08</span>
+        <span class="chain">✓ 5b30</span>
+      </div>
+      <div class="audit-entry">
+        <span class="ts">09:43:35.001</span>
+        <span class="mod ocr">OCR</span>
+        <span class="hash">EXP-F004-21CC</span>
+        <span class="conf high">0.96</span>
+        <span class="msg">Extracted: vendor=<code>Ola Cabs</code> · GSTIN=<code>27AABCO····1ZX</code> · verified ✓</span>
+        <span class="chain">✓ 0d92</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== POLICY RULES EDITOR ========== -->
+  <div class="divider">Screen · Policy Rules Editor</div>
+
+  <div class="section-label">Govern · Expense policy configuration</div>
+  <h2 class="section-title">Write the rules the AI must obey.</h2>
+  <p class="section-desc">A visual editor over the JavaScript Object Notation (JSON) rule set consumed by the policy module. Ambiguous rules fall through to GPT-4o for interpretation (FR-3.8, FR-3.9).</p>
+
+  <div class="panel" style="padding:0;overflow:hidden">
+    <div class="policy-layout">
+
+      <!-- POLICY LIST SIDEBAR -->
+      <div class="policy-list">
+        <div class="policy-list-head">
+          <h4>Rules</h4>
+          <span class="c">14 total</span>
+        </div>
+        <div class="policy-search">
+          <input type="text" placeholder="⌕ Search rules…">
+        </div>
+        <div class="policy-items">
+
+          <div class="policy-item active">
+            <div class="pi-top">
+              <span class="pi-name">Dining cap · Grade L3</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Single-meal expenses above ₹10,000 require approval.</div>
+            <div class="pi-meta"><span>v2.1.0</span><span>•</span><span>hit 38× today</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">GSTIN required &gt; ₹5,000</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Any expense above ₹5,000 must carry a valid GSTIN.</div>
+            <div class="pi-meta"><span>v1.4.0</span><span>•</span><span>hit 214× today</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Transport cap · city travel</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Cab expense within a city limited to ₹1,500 per trip.</div>
+            <div class="pi-meta"><span>v1.0.0</span><span>•</span><span>hit 96× today</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Weekend spending window</span>
+              <span class="pi-tag breach">High-breach</span>
+            </div>
+            <div class="pi-desc">Non-travel expenses on weekends flagged for review.</div>
+            <div class="pi-meta"><span>v1.2.0</span><span>•</span><span>28 breaches / 7d</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Disallowed categories</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Alcohol, personal grooming, and entertainment excluded.</div>
+            <div class="pi-meta"><span>v2.0.0</span><span>•</span><span>hit 12× today</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Mileage reimbursement</span>
+              <span class="pi-tag draft">Draft</span>
+            </div>
+            <div class="pi-desc">₹12/km for personal vehicle use on approved trips.</div>
+            <div class="pi-meta"><span>v0.1.0</span><span>•</span><span>not yet live</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Foreign currency expenses</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Must include FX rate source within 24h of submission.</div>
+            <div class="pi-meta"><span>v1.0.0</span><span>•</span><span>hit 3× today</span></div>
+          </div>
+
+          <div class="policy-item">
+            <div class="pi-top">
+              <span class="pi-name">Hotel cap · Tier-1 city</span>
+              <span class="pi-tag active">Active</span>
+            </div>
+            <div class="pi-desc">Stay ≤ ₹8,000/night in Delhi, Mumbai, Bangalore, Chennai.</div>
+            <div class="pi-meta"><span>v1.3.0</span><span>•</span><span>hit 21× today</span></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- POLICY EDITOR PANEL -->
+      <div class="policy-editor">
+        <div class="policy-editor-head">
+          <div>
+            <div class="pt">Editing rule · Dining cap</div>
+            <h3>Dining cap · Grade L3</h3>
+            <div class="meta">ID <b style="color:var(--ink-700)">dining_cap_grade_L3</b> · v2.1.0 · last modified 3 days ago by Meera K.</div>
+          </div>
+          <div class="acts">
+            <button class="btn btn-ghost btn-sm">Duplicate</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--bad)">Disable</button>
+            <button class="btn btn-primary btn-sm">Save changes</button>
+          </div>
+        </div>
+
+        <!-- Basic info -->
+        <div class="editor-section">
+          <h5>Basic information</h5>
+          <div class="form-grid-2">
+            <div class="editor-field">
+              <label>Rule name</label>
+              <input type="text" value="Dining cap · Grade L3">
+            </div>
+            <div class="editor-field">
+              <label>Rule identifier</label>
+              <input type="text" value="dining_cap_grade_L3" style="font-family:'JetBrains Mono',monospace">
+            </div>
+          </div>
+          <div class="editor-field" style="margin-top:14px">
+            <label>Description (shown in explanation)</label>
+            <textarea rows="2">Single-meal expenses above ₹10,000 exceed the dining cap for Grade L3 employees and require human approval.</textarea>
+          </div>
+        </div>
+
+        <!-- Conditions -->
+        <div class="editor-section">
+          <h5>Conditions (all must match)</h5>
+
+          <div class="form-grid-3" style="margin-bottom:14px">
+            <div class="editor-field">
+              <label>Category</label>
+              <select>
+                <option>Dining</option>
+                <option>Transport</option>
+                <option>Travel</option>
+                <option>Hotel</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="editor-field">
+              <label>Employee grades</label>
+              <div class="chip-selector" style="padding:6px 0">
+                <span class="chip-opt">L1</span>
+                <span class="chip-opt">L2</span>
+                <span class="chip-opt sel">L3</span>
+                <span class="chip-opt">L4</span>
+                <span class="chip-opt">L5+</span>
+              </div>
+            </div>
+            <div class="editor-field">
+              <label>Currency</label>
+              <select>
+                <option>INR (₹)</option>
+                <option>USD ($)</option>
+                <option>EUR (€)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="editor-field">
+              <label>Operator</label>
+              <select>
+                <option>greater than (&gt;)</option>
+                <option>greater than or equal (≥)</option>
+                <option>less than (&lt;)</option>
+                <option>between</option>
+              </select>
+            </div>
+            <div class="editor-field">
+              <label>Amount threshold</label>
+              <div class="input-prefix">
+                <span class="pre">₹</span>
+                <input type="text" value="10,000">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action on match -->
+        <div class="editor-section">
+          <h5>Action when rule is triggered</h5>
+
+          <div class="chip-selector" style="margin-bottom:14px">
+            <span class="chip-opt">Auto-approve</span>
+            <span class="chip-opt sel bad">Flag &amp; route to review</span>
+            <span class="chip-opt">Auto-reject</span>
+            <span class="chip-opt">Warn only</span>
+          </div>
+
+          <div class="toggle-row">
+            <div class="tl">
+              <b>Allow ambiguous fallback to GPT-4o</b>
+              <small>If the rule cannot be evaluated deterministically, call the language model for interpretation (FR-3.9).</small>
+            </div>
+            <div class="toggle-switch on"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="tl">
+              <b>Require human co-sign on approval</b>
+              <small>Even if later rules auto-approve, a human analyst must confirm.</small>
+            </div>
+            <div class="toggle-switch"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="tl">
+              <b>Include in confidence aggregation</b>
+              <small>Rule result contributes to the overall confidence score (weight 0.3).</small>
+            </div>
+            <div class="toggle-switch on"></div>
+          </div>
+        </div>
+
+        <!-- JSON preview -->
+        <div class="editor-section">
+          <h5>Compiled rule · live preview</h5>
+          <div class="json-preview">
+<span class="jc">// dining_cap_grade_L3 · v2.1.0</span>
+{
+  <span class="jk">"id"</span>: <span class="js">"dining_cap_grade_L3"</span>,
+  <span class="jk">"version"</span>: <span class="js">"2.1.0"</span>,
+  <span class="jk">"active"</span>: <span class="jb">true</span>,
+  <span class="jk">"conditions"</span>: {
+    <span class="jk">"category"</span>: <span class="js">"dining"</span>,
+    <span class="jk">"grade"</span>: [<span class="js">"L3"</span>],
+    <span class="jk">"currency"</span>: <span class="js">"INR"</span>,
+    <span class="jk">"amount"</span>: { <span class="jk">"op"</span>: <span class="js">"gt"</span>, <span class="jk">"value"</span>: <span class="jn">10000</span> }
+  },
+  <span class="jk">"action"</span>: <span class="js">"flag_for_review"</span>,
+  <span class="jk">"fallback_llm"</span>: <span class="jb">true</span>,
+  <span class="jk">"weight"</span>: <span class="jn">0.3</span>,
+  <span class="jk">"explanation_template"</span>: <span class="js">"Amount {amount} exceeds ₹{threshold} dining cap for Grade {grade}."</span>
+}
+          </div>
+        </div>
+
+        <!-- Test panel -->
+        <div class="editor-section">
+          <h5>Test against a sample expense</h5>
+          <div class="test-panel">
+            <div class="form-grid-3">
+              <div class="editor-field">
+                <label>Sample category</label>
+                <select><option>Dining</option></select>
+              </div>
+              <div class="editor-field">
+                <label>Sample grade</label>
+                <select><option>L3</option></select>
+              </div>
+              <div class="editor-field">
+                <label>Sample amount</label>
+                <div class="input-prefix">
+                  <span class="pre">₹</span>
+                  <input type="text" value="12,300">
+                </div>
+              </div>
+            </div>
+
+            <div class="tr-result">
+              <div class="ti">!</div>
+              <div class="td">
+                <b>Rule triggered</b>
+                <small>amount (₹12,300) &gt; threshold (₹10,000) · action = flag_for_review</small>
+              </div>
+              <span class="tv">MATCH</span>
+            </div>
+
+            <div class="tr-result" style="margin-top:6px">
+              <div class="ti" style="background:var(--ink-500)">✓</div>
+              <div class="td">
+                <b>Evaluated in 0.8 ms</b>
+                <small>Deterministic path · no LLM call needed for this input</small>
+              </div>
+              <span class="tv" style="color:var(--ink-500)">DET.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ========== PAGE FOOTER ========== -->
+<footer class="page-footer">
+  <div class="brand">Ledger <em>AI</em> · UC10 GUI Blueprint</div>
+  <div class="tech">
+    <b>TransitCoders</b> &nbsp;·&nbsp; Amnex Sarjan 2026 &nbsp;·&nbsp; Angular &amp; .NET Core implementation-ready
+  </div>
+</footer>
+
+</body>
+</html>

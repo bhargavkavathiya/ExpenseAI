@@ -1,0 +1,105 @@
+# UC10 — deployment compose for the hackathon portal.
+#
+# Portal contract:
+#   - Pipeline activates `--profile prod` → every service declares `profiles: [prod]`.
+#   - Exactly ONE service publishes the host port, via `${PORT}`. The nginx
+#     frontend is the public entry point and reverse-proxies `/api/*` and
+#     `/health` to the backend over the internal compose network.
+#   - `postgres` and `backend` are NOT published — they are reachable only
+#     through the internal network by their service names.
+name: uc10
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    profiles: [prod]
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-uc10}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uc10_changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-uc10}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-uc10} -d ${POSTGRES_DB:-uc10}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    profiles: [prod]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${POSTGRES_DB:-uc10};Username=${POSTGRES_USER:-uc10};Password=${POSTGRES_PASSWORD:-uc10_changeme};Include Error Detail=true
+      Jwt__Secret: ${Jwt__Secret}
+      Jwt__Issuer: ${Jwt__Issuer:-uc10-api}
+      Jwt__Audience: ${Jwt__Audience:-uc10-clients}
+      Jwt__AccessTokenTtlMinutes: ${Jwt__AccessTokenTtlMinutes:-720}
+      OpenAI__ApiKey: ${OpenAI__ApiKey:-}
+      OpenAI__Model: ${OpenAI__Model:-gpt-4o}
+      OpenAI__TimeoutMs: ${OpenAI__TimeoutMs:-5000}
+      Gstin__ApiKey: ${Gstin__ApiKey:-}
+      Gstin__ApiBase: ${Gstin__ApiBase:-https://api.example-gst.in}
+      Gstin__TimeoutMs: ${Gstin__TimeoutMs:-3000}
+      # Behind the nginx reverse proxy, browser calls originate from the same
+      # origin the portal gave us — the backend never sees cross-origin traffic.
+      Cors__AllowedOrigins: ${Cors__AllowedOrigins:-*}
+      Serilog__MinimumLevel: ${Serilog__MinimumLevel:-Information}
+      Storage__UploadsPath: /app/uploads
+      Storage__MaxBytes: ${Storage__MaxBytes:-10485760}
+    volumes:
+      - backend_uploads:/app/uploads
+    # The Dockerfile already declares a HEALTHCHECK; this block just shortens
+    # the start_period so `depends_on: condition: service_healthy` lights up
+    # faster for the frontend.
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    profiles: [prod]
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    # ONLY publisher — portal injects PORT at deploy time.
+    ports:
+      - "${PORT}:80"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  postgres_data:
+  backend_uploads:
+
+# The portal's Docker daemon has exhausted its default address-pool ranges
+# (`all predefined address pools have been fully subnetted`). Declaring an
+# explicit /28 (14 usable IPs — plenty for 3 containers) bypasses the pool
+# allocator and uses the exact range we pick. The 10.201.42.0/24 block is
+# well outside the Docker defaults (172.17–172.24) to minimise collision.
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.201.42.0/28

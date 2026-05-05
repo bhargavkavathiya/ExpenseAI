@@ -1,0 +1,6 @@
+@Uc10.Api_HostAddress = http://localhost:5191
+
+GET {{Uc10.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

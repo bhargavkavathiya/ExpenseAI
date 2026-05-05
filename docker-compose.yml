@@ -1,0 +1,76 @@
+name: uc10
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uc10-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-uc10}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uc10_changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-uc10}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-uc10} -d ${POSTGRES_DB:-uc10}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uc10-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${POSTGRES_DB:-uc10};Username=${POSTGRES_USER:-uc10};Password=${POSTGRES_PASSWORD:-uc10_changeme};Include Error Detail=true
+      Jwt__Secret: ${Jwt__Secret}
+      Jwt__Issuer: ${Jwt__Issuer:-uc10-api}
+      Jwt__Audience: ${Jwt__Audience:-uc10-clients}
+      Jwt__AccessTokenTtlMinutes: ${Jwt__AccessTokenTtlMinutes:-720}
+      OpenAI__ApiKey: ${OpenAI__ApiKey:-}
+      OpenAI__Model: ${OpenAI__Model:-gpt-4o}
+      OpenAI__TimeoutMs: ${OpenAI__TimeoutMs:-5000}
+      Gstin__ApiKey: ${Gstin__ApiKey:-}
+      Gstin__ApiBase: ${Gstin__ApiBase:-https://api.example-gst.in}
+      Gstin__TimeoutMs: ${Gstin__TimeoutMs:-3000}
+      Cors__AllowedOrigins: ${Cors__AllowedOrigins:-http://localhost:4200}
+      Serilog__MinimumLevel: ${Serilog__MinimumLevel:-Information}
+      Storage__UploadsPath: /app/uploads
+      Storage__MaxBytes: ${Storage__MaxBytes:-10485760}
+    ports:
+      - "8080:8080"
+    volumes:
+      - backend_uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NG_APP_API_BASE: ${NG_APP_API_BASE:-http://localhost:8080/api}
+    container_name: uc10-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  postgres_data:
+  backend_uploads:
