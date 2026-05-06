@@ -28,6 +28,7 @@ module.exports = {
         emerald:  { DEFAULT: '#059669', light: '#10b981' },
         amber:    { DEFAULT: '#d97706', light: '#f59e0b' },
         crimson:  { DEFAULT: '#dc2626', light: '#ef4444' },
+        lime:     { DEFAULT: '#84cc16', light: '#a3e635' },
         violet:   { DEFAULT: '#7c3aed', light: '#8b5cf6' },
         teal:     { DEFAULT: '#0891b2', light: '#06b6d4' },
         rose:     { DEFAULT: '#be185d', light: '#ec4899' }

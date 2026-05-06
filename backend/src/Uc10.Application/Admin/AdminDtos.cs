@@ -7,7 +7,12 @@ public record DashboardResponse(
     KpiCards Kpis,
     IReadOnlyList<ConfidenceBucketDto> ConfidenceHistogram,
     IReadOnlyList<ModuleHealthDto> ModuleHealth,
-    IReadOnlyList<IntegrationDto> Integrations);
+    IReadOnlyList<IntegrationDto> Integrations,
+    IReadOnlyList<StatusCountDto> StatusDistribution,
+    IReadOnlyList<HourlyVolumeDto> HourlyVolumes);
+
+public record StatusCountDto(string Status, int Count);
+public record HourlyVolumeDto(DateTime Hour, string Status, int Count);
 
 public record KpiCards(int SubmissionsLast1h, int SubmissionsLast24h, decimal ErrorRatePercent, int PendingReviews);
 public record ConfidenceBucketDto(decimal BucketStart, decimal BucketEnd, int Count);

@@ -160,20 +160,25 @@ public class ExpenseDecisionOrchestrator
                 mismatches.Add($"amount claimed ₹{claimed:0} vs OCR ₹{extracted:0}");
         }
 
-        // Merchant: case-insensitive exact comparison after trim.
-        if (!string.IsNullOrWhiteSpace(submitted.ClaimedMerchant) &&
-            !string.IsNullOrWhiteSpace(ocr.Vendor) &&
-            !submitted.ClaimedMerchant.Trim().Equals(ocr.Vendor.Trim(), StringComparison.OrdinalIgnoreCase))
+        // Merchant: Allow 65% similarity to handle variations like "ANANDHA BHAVAN" vs "ANANDHA BHAVAN A/C"
+        if (!string.IsNullOrWhiteSpace(submitted.ClaimedMerchant) && !string.IsNullOrWhiteSpace(ocr.Vendor))
         {
-            mismatches.Add($"merchant claimed '{submitted.ClaimedMerchant}' vs OCR '{ocr.Vendor}'");
+            var sim = CalculateSimilarity(submitted.ClaimedMerchant.Trim().ToUpperInvariant(), ocr.Vendor.Trim().ToUpperInvariant());
+            if (sim < 0.65)
+            {
+                mismatches.Add($"merchant claimed '{submitted.ClaimedMerchant}' vs OCR '{ocr.Vendor}' (similarity {sim:P0})");
+            }
         }
+
+        var isRejected = false;
 
         // GSTIN: 15-char exact match.
         if (!string.IsNullOrWhiteSpace(submitted.ClaimedGstin) &&
             !string.IsNullOrWhiteSpace(ocr.Gstin) &&
             !submitted.ClaimedGstin.Equals(ocr.Gstin, StringComparison.OrdinalIgnoreCase))
         {
-            mismatches.Add("GSTIN mismatch");
+            mismatches.Add($"claimed GSTIN {submitted.ClaimedGstin} vs OCR {ocr.Gstin}");
+            isRejected = true;
         }
 
         if (mismatches.Count == 0) return current;
@@ -187,10 +192,10 @@ public class ExpenseDecisionOrchestrator
 
         return current with
         {
-            DecisionStatus    = "needs_review",
-            NeedsReview       = true,
+            DecisionStatus    = isRejected ? "rejected" : "needs_review",
+            NeedsReview       = !isRejected,
             ReviewReason      = reason,
-            OverallConfidence = Math.Min(current.OverallConfidence, 0.55m)
+            OverallConfidence = Math.Min(current.OverallConfidence, isRejected ? 0.20m : 0.55m)
         };
     }
 
@@ -218,4 +223,39 @@ public class ExpenseDecisionOrchestrator
                 policy    = new { model_version = policy.Score.ModelVersion, prompt_version = policy.Score.PromptVersion, score = policy.Score.Score, summary = policy.Score.Summary, details = policy.Score.Details, violations = policy.Violations }
             }
         };
+
+    private static double CalculateSimilarity(string source, string target)
+    {
+        if (source == target) return 1.0;
+        
+        // Substring check easily handles dropped words like "SHRI GOWRI" vs "SHRI GOWRI KRISHNAA"
+        if (source.Length > 4 && target.Contains(source)) return 0.90;
+        if (target.Length > 4 && source.Contains(target)) return 0.90;
+
+        int stepsToSame = ComputeLevenshteinDistance(source, target);
+        return 1.0 - ((double)stepsToSame / Math.Max(source.Length, target.Length));
+    }
+
+    private static int ComputeLevenshteinDistance(string source, string target)
+    {
+        if (string.IsNullOrEmpty(source)) return string.IsNullOrEmpty(target) ? 0 : target.Length;
+        if (string.IsNullOrEmpty(target)) return source.Length;
+
+        int[,] distance = new int[source.Length + 1, target.Length + 1];
+
+        for (int i = 0; i <= source.Length; distance[i, 0] = i++) ;
+        for (int j = 0; j <= target.Length; distance[0, j] = j++) ;
+
+        for (int i = 1; i <= source.Length; i++)
+        {
+            for (int j = 1; j <= target.Length; j++)
+            {
+                int cost = (target[j - 1] == source[i - 1]) ? 0 : 1;
+                distance[i, j] = Math.Min(
+                    Math.Min(distance[i - 1, j] + 1, distance[i, j - 1] + 1),
+                    distance[i - 1, j - 1] + cost);
+            }
+        }
+        return distance[source.Length, target.Length];
+    }
 }

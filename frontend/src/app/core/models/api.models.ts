@@ -200,11 +200,24 @@ export interface IntegrationDto {
   lastError: string | null;
 }
 
+export interface StatusCountDto {
+  status: string;
+  count: number;
+}
+
+export interface HourlyVolumeDto {
+  hour: string;
+  status: string;
+  count: number;
+}
+
 export interface DashboardResponse {
   kpis: KpiCards;
   confidenceHistogram: ConfidenceBucketDto[];
   moduleHealth: ModuleHealthDto[];
   integrations: IntegrationDto[];
+  statusDistribution: StatusCountDto[];
+  hourlyVolumes: HourlyVolumeDto[];
 }
 
 export interface ReviewQueueItemDto {

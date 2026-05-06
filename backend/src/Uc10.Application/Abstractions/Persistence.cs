@@ -119,11 +119,17 @@ public interface IDashboardReader
 public record DashboardSnapshot(
     int SubmissionsLast1h,
     int SubmissionsLast24h,
+    int PendingReviews,
     decimal ErrorRate,
     IReadOnlyList<ConfidenceBucket> ConfidenceHistogram,
     IReadOnlyList<ModuleHealth> ModuleHealth,
-    IReadOnlyList<IntegrationStatus> Integrations
+    IReadOnlyList<IntegrationStatus> Integrations,
+    IReadOnlyList<StatusCount> StatusDistribution,
+    IReadOnlyList<HourlyVolume> HourlyVolumes
 );
+
+public record StatusCount(string Status, int Count);
+public record HourlyVolume(DateTime Hour, string Status, int Count);
 
 public record ConfidenceBucket(decimal BucketStart, decimal BucketEnd, int Count);
 public record ModuleHealth(string Module, int Invocations, decimal SuccessRate, decimal AverageConfidence, int AverageDurationMs);

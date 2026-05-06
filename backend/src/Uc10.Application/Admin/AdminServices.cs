@@ -22,7 +22,7 @@ public class AdminDashboardService
         var kpis = new KpiCards(
             snap.SubmissionsLast1h, snap.SubmissionsLast24h,
             Math.Round(snap.ErrorRate * 100m, 2),
-            snap.ConfidenceHistogram.Sum(b => 0) // filled via review queue repo below — kept 0 here; AdminController merges
+            snap.PendingReviews
         );
 
         return new DashboardResponse(
@@ -34,7 +34,9 @@ public class AdminDashboardService
             Integrations: snap.Integrations
                 .Select(i => new IntegrationDto(i.Name, i.Health.ToString().ToLowerInvariant(),
                     i.CircuitState == CircuitState.HalfOpen ? "half_open" : i.CircuitState.ToString().ToLowerInvariant(),
-                    i.LastChecked, i.LastError)).ToList());
+                    i.LastChecked, i.LastError)).ToList(),
+            StatusDistribution: snap.StatusDistribution.Select(s => new StatusCountDto(s.Status, s.Count)).ToList(),
+            HourlyVolumes: snap.HourlyVolumes.Select(h => new HourlyVolumeDto(h.Hour, h.Status, h.Count)).ToList());
     }
 }
 
