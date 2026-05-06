@@ -25,7 +25,7 @@ interface NavLink { path: string; label: string; icon: string; roles?: string[];
               💼
             </div>
             <div class="min-w-0">
-              <div class="text-[16px] font-extrabold text-white tracking-tight leading-none">{{ appName }}</div>
+              <div class="text-[16px] font-extrabold text-snow tracking-tight leading-none">{{ appName }}</div>
               <div class="text-[9px] text-fog uppercase tracking-[0.18em] mt-1">{{ buildTag }}</div>
             </div>
           </div>

@@ -44,7 +44,7 @@ public class ExpenseQueryService
             return new ExpenseSummaryDto(
                 e.RefId, StatusString(e.Status), e.SubmittedAt, e.OverallConfidence,
                 vendor ?? e.Category, total, currency,
-                e.Category, e.ClaimedAmount);
+                e.Category, e.ClaimedAmount, e.ClaimedMerchant);
         }).ToList();
     }
 

@@ -61,7 +61,7 @@ interface BandRow {
             </thead>
             <tbody>
               @for (r of rows(); track r.code) {
-                <tr class="border-t border-line hover:bg-ink-3/30 transition-colors">
+                <tr class="border-t border-line">
                   <td class="py-4 px-6">
                     <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full
                                  bg-sapphire/15 border border-sapphire/30 text-sapphire-light

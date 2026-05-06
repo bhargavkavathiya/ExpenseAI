@@ -12,7 +12,8 @@ export default function ResultScreen({ navigation, route }) {
   const { result, refId } = route.params
   if (!result) return <View style={styles.center}><Text>No result data</Text></View>
 
-  const status = result.status || 'needs_review'
+  const rawStatus = result.status || 'needs_review'
+  const status = rawStatus.replace(/([A-Z])/g, "_$1").toLowerCase().replace(/^_/, "")
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.needs_review
   const confidence = result.confidence || 0
   const pct = Math.round(confidence * 100)

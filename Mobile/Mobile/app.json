@@ -25,7 +25,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "apiBase": "https://proxy-transitcoders-1dgc-6oacfkjmja-el.a.run.app/api",
+      "apiBase": "http://10.228.246.236:8080/api",
       "eas": {
         "projectId": "c73badb9-5427-4756-a8e8-0ded41b9afdf"
       }

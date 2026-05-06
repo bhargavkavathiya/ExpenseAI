@@ -90,8 +90,8 @@ public class ReviewQueueService
             Status: r.Status.ToString().ToLowerInvariant(),
             CreatedAt: r.CreatedAt,
             OverallConfidence: r.Expense?.OverallConfidence,
-            Vendor:   vendor ?? r.Expense?.ClaimedMerchant ?? r.Expense?.Category,
-            Total:    total  ?? r.Expense?.ClaimedAmount,
+            Vendor:   r.Expense?.ClaimedMerchant ?? vendor ?? r.Expense?.Category,
+            Total:    r.Expense?.ClaimedAmount   ?? total,
             Currency: currency);
     }
 
@@ -114,8 +114,8 @@ public class ReviewQueueService
             Status: status.ToString().ToLowerInvariant(),
             CreatedAt: e.CompletedAt ?? e.SubmittedAt,
             OverallConfidence: e.OverallConfidence,
-            Vendor: vendor ?? e.ClaimedMerchant,
-            Total:  total  ?? e.ClaimedAmount,
+            Vendor: e.ClaimedMerchant ?? vendor,
+            Total:  e.ClaimedAmount  ?? total,
             Currency: currency);
     }
 

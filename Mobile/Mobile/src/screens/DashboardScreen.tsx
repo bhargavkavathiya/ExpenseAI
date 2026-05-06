@@ -150,20 +150,20 @@ export default function DashboardScreen({ navigation }: Props) {
             <View style={[S.heroBarSegment, { flex: rejectedAmount / totalClaimed, backgroundColor: "#f87171" }]} />
           )}
           {totalClaimed > 0 && pendingAmount > 0 && (
-            <View style={[S.heroBarSegment, { flex: pendingAmount / totalClaimed, backgroundColor: "rgba(255,255,255,0.25)" }]} />
+            <View style={[S.heroBarSegment, { flex: pendingAmount / totalClaimed, backgroundColor: "#fbbf24" }]} />
           )}
         </View>
 
         <View style={S.heroLegend}>
           <LegendItem color="#4ade80" label="Approved" />
           <LegendItem color="#f87171" label="Rejected" />
-          <LegendItem color="rgba(255,255,255,0.4)" label="Pending" />
+          <LegendItem color="#fbbf24" label="Pending" />
         </View>
       </View>
 
       {/* ── 4 Stat Cards ── */}
       <View style={S.statsRow}>
-        <StatCard icon="📊" label="Submitted" count={items.length}      color="#1a237e" bg="#eef2ff" />
+        <StatCard icon="📊" label="Submitted" count={items.length}      color="#581c87" bg="#d8b4fe" />
         <StatCard icon="✅" label="Approved"  count={approved.length}   color="#16a34a" bg="#dcfce7" />
         <StatCard icon="❌" label="Rejected"  count={rejected.length}   color="#dc2626" bg="#fee2e2" />
         <StatCard icon="⚠️" label="Review"   count={reviewing.length}  color="#d97706" bg="#fef3c7" />

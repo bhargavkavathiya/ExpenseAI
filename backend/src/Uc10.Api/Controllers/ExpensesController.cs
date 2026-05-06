@@ -79,6 +79,7 @@ public class ExpensesController : ControllerBase
     // POST /api/expenses/ocr-preview — upload an image and get back OCR-extracted fields
     // (amount, vendor, date) WITHOUT creating an expense record. Used by mobile to
     // auto-fill the claim form before the user submits.
+    [AllowAnonymous]
     [HttpPost("ocr-preview")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(15 * 1024 * 1024)]
@@ -101,6 +102,49 @@ public class ExpensesController : ControllerBase
                 date     = result.Date?.ToString("yyyy-MM-dd"),
                 currency = result.Currency,
                 gstin    = result.Gstin,
+                confidence = result.Score.Score
+            });
+        }
+        finally
+        {
+            if (System.IO.File.Exists(tmp)) System.IO.File.Delete(tmp);
+        }
+    }
+
+    // POST /api/expenses/ocr-preview-b64 — same as ocr-preview but accepts the image
+    // as a base64 JSON body instead of multipart. Used by React Native clients where
+    // multipart FormData can fail due to boundary handling issues in the HTTP stack.
+    [AllowAnonymous]
+    [HttpPost("ocr-preview-b64")]
+    [RequestSizeLimit(20 * 1024 * 1024)]
+    public async Task<IActionResult> OcrPreviewB64([FromBody] OcrPreviewB64Request req, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(req.ImageBase64)) return BadRequest("imageBase64 is required");
+
+        byte[] imageBytes;
+        try { imageBytes = Convert.FromBase64String(req.ImageBase64); }
+        catch { return BadRequest("imageBase64 is not valid base64"); }
+
+        var ext = (req.MimeType ?? "image/jpeg").ToLowerInvariant() switch
+        {
+            "image/png"  => ".png",
+            "image/gif"  => ".gif",
+            "image/webp" => ".webp",
+            _            => ".jpg"
+        };
+
+        var tmp = Path.Combine(Path.GetTempPath(), $"ocr_b64_{Guid.NewGuid()}{ext}");
+        try
+        {
+            await System.IO.File.WriteAllBytesAsync(tmp, imageBytes, ct);
+            var result = await _ocr.ExtractAsync(tmp, ct);
+            return Ok(new
+            {
+                total      = result.Total,
+                vendor     = result.Vendor,
+                date       = result.Date?.ToString("yyyy-MM-dd"),
+                currency   = result.Currency,
+                gstin      = result.Gstin,
                 confidence = result.Score.Score
             });
         }
@@ -188,3 +232,5 @@ public class ExpensesController : ControllerBase
         return id;
     }
 }
+
+public record OcrPreviewB64Request(string ImageBase64, string? MimeType);

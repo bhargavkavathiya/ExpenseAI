@@ -39,13 +39,13 @@ import { ThresholdDto } from '../../../core/models/api.models';
             </thead>
             <tbody>
               @for (t of items(); track t.key) {
-                <tr class="border-t border-line hover:bg-ink-3">
+                <tr class="border-t border-line">
                   <td class="py-3 px-4 font-mono text-[11px] text-snow">{{ t.key }}</td>
                   <td class="text-mist">{{ t.value }}</td>
                   <td class="px-4"><input type="number" class="fc !py-1.5 !px-2 w-40 text-[12px]"
                                           [(ngModel)]="edits[t.key]" name="k-{{t.key}}"></td>
                   <td class="px-4">
-                    <button class="btn btn-primary btn-xs"
+                    <button class="btn btn-primary btn-sm"
                             (click)="save(t.key)"
                             [disabled]="edits[t.key] == null || edits[t.key] === t.value || busy()[t.key]">
                       {{ busy()[t.key] ? 'Saving…' : 'Save' }}

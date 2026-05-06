@@ -68,4 +68,5 @@ public record ExpenseSummaryDto(
     decimal? Total,
     string Currency,
     string? Category,
-    decimal? ClaimedAmount);
+    decimal? ClaimedAmount,
+    string? ClaimedMerchant);

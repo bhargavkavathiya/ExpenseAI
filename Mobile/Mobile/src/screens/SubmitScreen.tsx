@@ -16,7 +16,7 @@ import {
 } from "react-native";
 
 import type { RootStackParamList } from "../../App";
-import { api, clearToken, loadUserProfile } from "@/api";
+import { api, apiBase, clearToken, getToken, loadUserProfile } from "@/api";
 import DatePickerField from "@/components/DatePickerField";
 import PickerField from "@/components/PickerField";
 
@@ -31,7 +31,8 @@ const today = new Date().toISOString().slice(0, 10);
 export default function SubmitScreen({ navigation }: Props) {
   const [uri,       setUri]       = useState<string | null>(null);
   const [busy,      setBusy]      = useState(false);
-  const [ocrScanning, setOcrScanning] = useState(false);
+  const [scanning,  setScanning]  = useState(false);
+  const [ocrFilled, setOcrFilled] = useState<string[]>([]); // which fields were auto-filled
 
   // Employee
   const [employeeName, setEmployeeName] = useState("");
@@ -89,38 +90,66 @@ export default function SubmitScreen({ navigation }: Props) {
     }, 400);
   }, [gstin]);
 
-  async function runOcr(imageUri: string) {
-    setOcrScanning(true);
+  async function uriToBase64(uri: string): Promise<string | null> {
     try {
-      const form = new FormData();
-      form.append("receipt", { uri: imageUri, name: "preview.jpg", type: "image/jpeg" } as unknown as Blob);
-      const { data } = await api.post("/expenses/ocr-preview", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-        timeout: 12000,
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      return await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.includes(",") ? result.split(",")[1] : result);
+        };
+        reader.onerror = () => reject(new Error("FileReader error"));
+        reader.readAsDataURL(blob);
       });
-      if (data.total != null && Number(data.total) > 0) {
-        setAmount(String(data.total));
-      }
-      if (data.vendor && !merchantName.trim()) setMerchantName(data.vendor);
-      if (data.gstin  && !gstin.trim())        setGstin(data.gstin.toUpperCase());
-      if (data.date   && claimedDate === today) setClaimedDate(data.date);
     } catch {
-      // OCR preview is best-effort — silently ignore errors
+      return null;
+    }
+  }
+
+  async function runOcrPreview(imageUri: string) {
+    setScanning(true);
+    setOcrFilled([]);
+    try {
+      const base64 = await uriToBase64(imageUri);
+      if (!base64) return;
+      const { data } = await api.post(
+        "/expenses/ocr-preview-b64",
+        { imageBase64: base64, mimeType: "image/jpeg" },
+        { timeout: 30000 },
+      );
+      const filled: string[] = [];
+      if (data.total && Number(data.total) > 0) { setAmount(String(data.total)); filled.push("amount"); }
+      if (data.vendor)  { setMerchantName(data.vendor); filled.push("merchant"); }
+      if (data.gstin)   { setGstin(data.gstin.toUpperCase()); filled.push("gstin"); }
+      if (data.date)    { setClaimedDate(data.date); filled.push("date"); }
+      setOcrFilled(filled);
+    } catch (err: any) {
+      console.warn("OCR preview failed (manual entry still works):", err?.message ?? err);
     } finally {
-      setOcrScanning(false);
+      setScanning(false);
     }
   }
 
   async function pickFromGallery() {
     const res = await ImagePicker.launchImageLibraryAsync({ quality: 0.85 });
-    if (!res.canceled) { setUri(res.assets[0].uri); runOcr(res.assets[0].uri); }
+    if (!res.canceled) {
+      const asset = res.assets[0];
+      setUri(asset.uri);
+      runOcrPreview(asset.uri).catch(() => {});
+    }
   }
 
   async function capture() {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) { Alert.alert("Permission denied", "Camera access is required."); return; }
     const res = await ImagePicker.launchCameraAsync({ quality: 0.85 });
-    if (!res.canceled) { setUri(res.assets[0].uri); runOcr(res.assets[0].uri); }
+    if (!res.canceled) {
+      const asset = res.assets[0];
+      setUri(asset.uri);
+      runOcrPreview(asset.uri).catch(() => {});
+    }
   }
 
   function canSubmit() {
@@ -147,13 +176,26 @@ export default function SubmitScreen({ navigation }: Props) {
       if (employeeName.trim())     form.append("employeeName",  employeeName.trim());
       if (department.trim())       form.append("department",    department);
 
-      const { data } = await api.post("/expenses", form, {
-        headers: { "Content-Type": "multipart/form-data" },
+      // Use fetch instead of axios for multipart — axios + FormData + file URI fails in RN new arch
+      const token = await getToken();
+      const response = await fetch(`${apiBase}/expenses`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: form,
       });
+
+      if (response.status === 401) { await clearToken(); navigation.replace("Login"); return; }
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        Alert.alert("Submission failed", errData.detail ?? errData.title ?? `Server error ${response.status}`);
+        return;
+      }
+
+      const data = await response.json();
       navigation.replace("Ack", { refId: data.refId });
     } catch (err: any) {
-      if (err?.response?.status === 401) { await clearToken(); navigation.replace("Login"); return; }
-      Alert.alert("Submission failed", err?.response?.data?.detail ?? err?.response?.data?.title ?? err.message);
+      Alert.alert("Submission failed", err?.message ?? "Network error");
     } finally {
       setBusy(false);
     }
@@ -204,6 +246,22 @@ export default function SubmitScreen({ navigation }: Props) {
               <Text style={S.imgBtnText}>Gallery</Text>
             </TouchableOpacity>
           </View>
+
+          {/* OCR scanning progress / success banner */}
+          {scanning && (
+            <View style={S.ocrBanner}>
+              <ActivityIndicator size="small" color="#7c3aed" />
+              <Text style={S.ocrBannerText}>Scanning receipt with AI…</Text>
+            </View>
+          )}
+          {!scanning && ocrFilled.length > 0 && (
+            <View style={[S.ocrBanner, S.ocrBannerDone]}>
+              <Text style={S.ocrBannerIcon}>✨</Text>
+              <Text style={[S.ocrBannerText, S.ocrBannerDoneText]}>
+                Auto-filled: {ocrFilled.join(", ")} — please verify and edit if needed
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* ══ SECTION: Employee ══ */}
@@ -257,26 +315,32 @@ export default function SubmitScreen({ navigation }: Props) {
           <View style={S.row2}>
             <View style={S.col}>
               <Field label="Amount (₹)" required>
-                <View style={[S.amountWrap, ocrScanning && S.amountWrapScanning]}>
+                <View style={[S.amountWrap, scanning && S.amountWrapScanning]}>
                   <View style={S.amountPrefix}>
                     <Text style={S.amountPrefixText}>₹</Text>
                   </View>
                   <TextInput
                     style={S.amountInput}
-                    placeholder={ocrScanning ? "Scanning…" : "0.00"}
-                    placeholderTextColor={ocrScanning ? "#7c3aed" : "#9ca3af"}
+                    placeholder="0.00"
+                    placeholderTextColor="#9ca3af"
                     keyboardType="decimal-pad"
                     value={amount}
-                    onChangeText={setAmount}
-                    editable={!ocrScanning}
+                    onChangeText={(t) => { setAmount(t); setOcrFilled(f => f.filter(x => x !== "amount")); }}
                   />
-                  {ocrScanning && (
+                  {scanning && (
+                    <View style={S.scanBadge}>
+                      <ActivityIndicator size="small" color="#fff" />
+                    </View>
+                  )}
+                  {!scanning && ocrFilled.includes("amount") && (
                     <View style={S.scanBadge}>
                       <Text style={S.scanBadgeText}>AI</Text>
                     </View>
                   )}
                 </View>
-                {ocrScanning && <Text style={S.scanHint}>Reading receipt…</Text>}
+                {!scanning && ocrFilled.includes("amount") && (
+                  <Text style={S.scanHint}>Auto-filled — tap to edit</Text>
+                )}
               </Field>
             </View>
             <View style={S.col}>
@@ -286,12 +350,15 @@ export default function SubmitScreen({ navigation }: Props) {
 
           <Field label="Merchant Name" required>
             <TextInput
-              style={S.input}
+              style={[S.input, !scanning && ocrFilled.includes("merchant") && S.inputOcrFilled]}
               placeholder="Hotel Grand Hyatt · Auto Travels · Swiggy …"
               placeholderTextColor="#9ca3af"
               value={merchantName}
-              onChangeText={setMerchantName}
+              onChangeText={(t) => { setMerchantName(t); setOcrFilled(f => f.filter(x => x !== "merchant")); }}
             />
+            {!scanning && ocrFilled.includes("merchant") && (
+              <Text style={S.scanHint}>Auto-filled — tap to edit</Text>
+            )}
           </Field>
 
           <Field label="GSTIN">
@@ -306,7 +373,7 @@ export default function SubmitScreen({ navigation }: Props) {
                 placeholder="27AABCU9603R1ZX"
                 placeholderTextColor="#9ca3af"
                 value={gstin}
-                onChangeText={(t) => setGstin(t.toUpperCase())}
+                onChangeText={(t) => { setGstin(t.toUpperCase()); setOcrFilled(f => f.filter(x => x !== "gstin")); }}
                 maxLength={15}
                 autoCapitalize="characters"
               />
@@ -327,8 +394,11 @@ export default function SubmitScreen({ navigation }: Props) {
               )}
             </View>
 
-            {gstinStatus === "idle" && (
+            {gstinStatus === "idle" && !ocrFilled.includes("gstin") && (
               <Text style={S.hint}>15-char GSTIN — verified automatically when complete.</Text>
+            )}
+            {gstinStatus === "idle" && ocrFilled.includes("gstin") && !scanning && (
+              <Text style={S.scanHint}>Auto-filled from receipt — tap to edit</Text>
             )}
             {gstinStatus === "checking" && (
               <Text style={S.gstinChecking}>Verifying with GST registry…</Text>
@@ -507,6 +577,18 @@ const S = StyleSheet.create({
   scanBadgeText: { color: "#fff", fontSize: 10, fontWeight: "800", letterSpacing: 0.5 },
   scanHint: { fontSize: 11, color: "#7c3aed", fontWeight: "600", marginTop: 3 },
 
+  inputOcrFilled: { borderColor: "#7c3aed", backgroundColor: "#faf5ff" },
+
+  ocrBanner: {
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: "#f3f0ff", borderRadius: 10, padding: 10,
+    borderWidth: 1, borderColor: "#ede9fe",
+  },
+  ocrBannerDone: { backgroundColor: "#f0fdf4", borderColor: "#bbf7d0" },
+  ocrBannerIcon: { fontSize: 14 },
+  ocrBannerText: { fontSize: 12, color: "#7c3aed", fontWeight: "600", flex: 1 },
+  ocrBannerDoneText: { color: "#16a34a" },
+
   hint: { fontSize: 11, color: "#94a3b8", lineHeight: 15 },
 
   footer: { gap: 14, marginTop: 4 },
@@ -536,8 +618,9 @@ const S = StyleSheet.create({
     fontSize: 15, color: "#111827",
   },
   gstinBadge: {
-    paddingHorizontal: 12, paddingVertical: 10,
+    paddingHorizontal: 16,
     alignItems: "center", justifyContent: "center",
+    alignSelf: "stretch", // Stretch to full height of parent gstinWrap
   },
   gstinBadgeOk:   { backgroundColor: "#16a34a" },
   gstinBadgeFail: { backgroundColor: "#ef4444" },

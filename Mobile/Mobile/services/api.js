@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // localhost.run SSH tunnel — phone (on mobile data) reaches laptop API via public URL
 // If the SSH tunnel disconnects, the URL changes — update here
-const BASE_URL = 'https://proxy-transitcoders-1dgc-6oacfkjmja-el.a.run.app/api'
+const BASE_URL = 'https://all-worms-cut.loca.lt/api'
 
 async function getHeaders(multipart = false) {
   const token = await AsyncStorage.getItem('token')
@@ -16,11 +16,15 @@ export async function register(name, email, password) {
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ 
+      email, 
+      password,
+      profile: { fullName: name }
+    }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message || data.detail || 'Registration failed')
-  await AsyncStorage.setItem('token', data.token)
+  await AsyncStorage.setItem('token', data.accessToken)
   return data
 }
 
@@ -32,8 +36,14 @@ export async function login(email, password) {
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message || data.detail || 'Login failed')
-  await AsyncStorage.setItem('token', data.token)
-  await AsyncStorage.setItem('user', JSON.stringify({ id: data.userId, name: data.name, email: data.email, role: data.role }))
+  await AsyncStorage.setItem('token', data.accessToken)
+  const u = data.user
+  await AsyncStorage.setItem('user', JSON.stringify({ 
+    id: u.id, 
+    name: u.profile?.fullName || u.email, 
+    email: u.email, 
+    role: u.roles[0] 
+  }))
   return data
 }
 
@@ -41,10 +51,10 @@ export async function submitExpense(imageUri, amount, category, description, dat
   const headers = await getHeaders(true)
   const formData = new FormData()
   formData.append('receipt', { uri: imageUri, type: 'image/jpeg', name: 'receipt.jpg' })
-  formData.append('amount', String(amount))
+  formData.append('claimedAmount', String(amount))
   formData.append('category', category)
-  formData.append('description', description)
-  formData.append('date', date)
+  formData.append('purpose', description)
+  formData.append('claimedDate', date)
 
   const res = await fetch(`${BASE_URL}/expenses`, {
     method: 'POST',

@@ -18,8 +18,8 @@ type Props = NativeStackScreenProps<RootStackParamList, "Result">;
 
 type ModuleResult = { score: number; summary?: string | null; modelVersion?: string };
 type PerModule = { ocr: ModuleResult; duplicate: ModuleResult; anomaly: ModuleResult; policy: ModuleResult };
-type ExpenseResult = { vendor?: string | null; total?: number | null; currency: string; explanation?: string | null; overallConfidence: number; perModule: PerModule; needsReview: boolean; reviewReason?: string | null };
-type DecisionResponse = { refId: string; status: string; overallConfidence?: number | null; needsReview: boolean; reviewReason?: string | null; category?: string | null; claimedAmount?: number | null; result?: ExpenseResult | null };
+type ExpenseResult = { vendor?: string | null; total?: number | null; currency: string; date?: string | null; explanation?: string | null; overallConfidence: number; perModule: PerModule; needsReview: boolean; reviewReason?: string | null };
+type DecisionResponse = { refId: string; status: string; overallConfidence?: number | null; needsReview: boolean; reviewReason?: string | null; category?: string | null; claimedAmount?: number | null; claimedMerchant?: string | null; claimedDate?: string | null; result?: ExpenseResult | null };
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: string; label: string }> = {
   approved:     { color: "#fff", bg: "#16a34a", icon: "✅", label: "Approved" },
@@ -148,14 +148,24 @@ export default function ResultScreen({ route, navigation }: Props) {
         </View>
       )}
 
-      {/* Extracted Details */}
+      {/* Claimed Details (what the employee submitted) */}
       <View style={styles.card}>
-        <Text style={styles.sectionLabel}>Extracted Details</Text>
-        <Row label="Vendor" value={r?.vendor ?? "—"} />
-        <Row label="Amount" value={r?.total != null ? `${r.currency ?? "INR"} ${r.total.toFixed(2)}` : "—"} highlight />
+        <Text style={styles.sectionLabel}>Submitted Details</Text>
+        <Row label="Merchant" value={data.claimedMerchant ?? r?.vendor ?? "—"} highlight />
+        <Row label="Amount" value={data.claimedAmount != null ? `INR ${data.claimedAmount.toFixed(2)}` : r?.total != null ? `${r.currency ?? "INR"} ${r.total.toFixed(2)}` : "—"} highlight />
+        {data.claimedDate && <Row label="Date" value={data.claimedDate} />}
         {data.category && <Row label="Category" value={`${CATEGORY_ICONS[data.category] ?? "📋"}  ${data.category}`} />}
-        {data.claimedAmount != null && <Row label="Claimed" value={`INR ${data.claimedAmount.toFixed(2)}`} />}
       </View>
+
+      {/* OCR Extracted Details (AI read from receipt) */}
+      {r && (
+        <View style={styles.card}>
+          <Text style={styles.sectionLabel}>OCR Extracted (AI)</Text>
+          <Row label="Vendor" value={r.vendor ?? "—"} />
+          <Row label="Amount" value={r.total != null ? `${r.currency ?? "INR"} ${r.total.toFixed(2)}` : "—"} />
+          {r.date && <Row label="Date" value={r.date.toString()} />}
+        </View>
+      )}
 
       {/* Explanation */}
       {r?.explanation && (

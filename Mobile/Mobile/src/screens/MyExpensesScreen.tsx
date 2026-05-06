@@ -26,6 +26,7 @@ type ExpenseSummary = {
   currency: string;
   category?: string | null;
   claimedAmount?: number | null;
+  claimedMerchant?: string | null;
 };
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; icon: string }> = {
@@ -176,11 +177,11 @@ export default function MyExpensesScreen({ navigation }: Props) {
 
               <View style={styles.cardMid}>
                 <Text style={styles.vendorText} numberOfLines={1}>
-                  {catIcon ? `${catIcon}  ` : ""}{item.vendor ?? "Unknown vendor"}
+                  {catIcon ? `${catIcon}  ` : ""}{item.claimedMerchant ?? item.vendor ?? "Unknown vendor"}
                 </Text>
-                {(item.total != null || item.claimedAmount != null) && (
+                {(item.claimedAmount != null || item.total != null) && (
                   <Text style={styles.amountText}>
-                    ₹ {(item.total ?? item.claimedAmount ?? 0).toFixed(2)}
+                    ₹ {(item.claimedAmount ?? item.total ?? 0).toFixed(2)}
                   </Text>
                 )}
               </View>

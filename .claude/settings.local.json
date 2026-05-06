@@ -18,7 +18,10 @@
       "Bash(curl -s -w '8080 %{http_code}\\\\n' http://localhost:8080/health -o /dev/null)",
       "Bash(curl -sS -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:4300/)",
       "Bash(curl -sS -H \"content-type: application/json\" -d '{\"email\":\"admin@demo.local\",\"password\":\"Admin@123\"}' http://localhost:4300/api/auth/login)",
-      "Bash(python -c \"import json,sys;d=json.load\\(sys.stdin\\);print\\('OK — token length',len\\(d['accessToken']\\),'· roles',d['user']['roles']\\)\")"
+      "Bash(python -c \"import json,sys;d=json.load\\(sys.stdin\\);print\\('OK — token length',len\\(d['accessToken']\\),'· roles',d['user']['roles']\\)\")",
+      "Bash(Get-ChildItem -Path \"d:\\\\Hackathon\\\\transitcoders-1dgc\" -Directory)",
+      "Bash(Select-Object Name)",
+      "PowerShell(Get-ChildItem \"d:\\\\Hackathon\\\\transitcoders-1dgc\\\\backend\\\\\" -Recurse | Where-Object {!$_.PSIsContainer} | Format-Table FullName)"
     ]
   }
 }

@@ -63,7 +63,7 @@ import { AuthService } from '../../../core/services/auth.service';
             </thead>
             <tbody>
               @for (r of rows(); track r.seq) {
-                <tr class="border-t border-line hover:bg-ink-3">
+                <tr class="border-t border-line">
                   <td class="py-2 px-3 font-mono text-snow">{{ r.seq }}</td>
                   <td class="px-2 text-mist whitespace-nowrap">{{ r.ts | date:'medium' }}</td>
                   <td class="px-2 text-snow font-semibold">{{ r.module }}</td>
