@@ -4,6 +4,9 @@
 !.env.example
 !.env.prod
 
+# Secrets — never commit production keys
+backend/src/Uc10.Api/appsettings.Production.json
+
 # .NET
 bin/
 obj/

@@ -11,11 +11,12 @@ public class LocalFileReceiptStorage : IReceiptStorage
     public LocalFileReceiptStorage(IOptions<StorageOptions> opts)
     {
         _opts = opts.Value;
-        Directory.CreateDirectory(_opts.UploadsPath);
+        try { Directory.CreateDirectory(_opts.UploadsPath); } catch { /* created lazily on first save */ }
     }
 
     public async Task<StoredReceipt> SaveAsync(string refId, ReceiptUpload upload, CancellationToken ct)
     {
+        Directory.CreateDirectory(_opts.UploadsPath);
         var ext = GuessExtension(upload.ContentType);
         var path = Path.Combine(_opts.UploadsPath, $"{refId}{ext}");
 
