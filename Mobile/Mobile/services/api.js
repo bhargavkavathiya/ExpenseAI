@@ -1,12 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-// localhost.run SSH tunnel — phone (on mobile data) reaches laptop API via public URL
-// If the SSH tunnel disconnects, the URL changes — update here
-const BASE_URL = 'https://all-worms-cut.loca.lt/api'
+const BASE_URL = 'http://expenseiq.runasp.net/api'
 
 async function getHeaders(multipart = false) {
   const token = await AsyncStorage.getItem('token')
-  const headers = { 'ngrok-skip-browser-warning': 'true' }
+  const headers = {}
   if (token) headers['Authorization'] = `Bearer ${token}`
   if (!multipart) headers['Content-Type'] = 'application/json'
   return headers

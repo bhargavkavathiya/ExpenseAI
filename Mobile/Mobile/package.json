@@ -17,6 +17,7 @@
     "@react-navigation/stack": "^7.8.10",
     "axios": "^1.7.9",
     "expo": "~54.0.33",
+    "expo-build-properties": "~1.0.10",
     "expo-constants": "~17.0.8",
     "expo-image-picker": "~17.0.10",
     "expo-secure-store": "~14.0.1",

@@ -60,6 +60,11 @@ public interface IExpenseRepository
         string? reviewReason, string resultJson, CancellationToken ct);
 
     Task UpdateStatusOnlyAsync(Guid expenseId, ExpenseStatus status, CancellationToken ct);
+
+    // Sum of claimed_amount for the user on the given UTC date, excluding rejected expenses
+    // and the current expense being processed (to avoid double-counting).
+    Task<decimal> GetDailyTotalExcludingRejectedAsync(
+        Guid userId, DateOnly date, Guid excludeExpenseId, CancellationToken ct);
 }
 
 public interface IAuditLogService

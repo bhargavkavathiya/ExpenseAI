@@ -19,13 +19,24 @@
         "backgroundColor": "#1a237e"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.bhargav_001.ExpenseAuditor"
+      "package": "com.bhargav_001.ExpenseAuditor",
+      "usesCleartextTraffic": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
+    ],
     "extra": {
-      "apiBase": "http://10.228.246.236:8080/api",
+      "apiBase": "http://expenseiq.runasp.net/api",
       "eas": {
         "projectId": "c73badb9-5427-4756-a8e8-0ded41b9afdf"
       }

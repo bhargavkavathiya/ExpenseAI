@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Uc10.Application.Abstractions;
 using Uc10.Domain.Enums;
+using Uc10.Domain.Entities;
 
 namespace Uc10.Application.Expenses;
 
@@ -28,13 +29,15 @@ public class ExpenseDecisionOrchestrator
     private readonly IExpenseRepository _expenses;
     private readonly IReviewQueueRepository _reviewQueue;
     private readonly IDuplicateHashRepository _phashRepo;
+    private readonly IUserRepository _users;
+    private readonly IEmployeeBandRepository _bands;
     private readonly ILogger<ExpenseDecisionOrchestrator> _log;
 
     public ExpenseDecisionOrchestrator(
         IOcrExtractionService ocr, IDuplicateDetectionService duplicate, IAnomalyDetectionService anomaly,
         IPolicyRuleEngine policy, IConfidenceAggregator aggregator, IPerceptualHasher phasher,
         IAuditLogService audit, IExpenseRepository expenses, IReviewQueueRepository reviewQueue,
-        IDuplicateHashRepository phashRepo,
+        IDuplicateHashRepository phashRepo, IUserRepository users, IEmployeeBandRepository bands,
         ILogger<ExpenseDecisionOrchestrator> log)
     {
         _ocr = ocr;
@@ -47,6 +50,8 @@ public class ExpenseDecisionOrchestrator
         _expenses = expenses;
         _reviewQueue = reviewQueue;
         _phashRepo = phashRepo;
+        _users = users;
+        _bands = bands;
         _log = log;
     }
 
@@ -86,6 +91,12 @@ public class ExpenseDecisionOrchestrator
             // unreliable and must go to human review, regardless of the
             // aggregator's confidence score.
             decision = await ApplyIntegrityOverrideAsync(expenseId, ocr, decision, ct);
+
+            // 5c. Band limit priority override — if the claim pushes the user over
+            // their daily or category allowance, force needs_review with a clear
+            // reason. Runs after integrity so a rejected-by-GSTIN claim is not
+            // silently re-routed to review. Rejected decisions are left unchanged.
+            decision = await ApplyBandLimitOverrideAsync(expenseId, userId, decision, ct);
 
             // 6. Build + persist result
             var result = BuildResult(ocr, duplicate, anomaly, policy, decision);
@@ -223,6 +234,74 @@ public class ExpenseDecisionOrchestrator
                 policy    = new { model_version = policy.Score.ModelVersion, prompt_version = policy.Score.PromptVersion, score = policy.Score.Score, summary = policy.Score.Summary, details = policy.Score.Details, violations = policy.Violations }
             }
         };
+
+    private async Task<AggregatedDecision> ApplyBandLimitOverrideAsync(
+        Guid expenseId, Guid userId, AggregatedDecision current, CancellationToken ct)
+    {
+        if (current.DecisionStatus == "rejected") return current;
+
+        var user = await _users.FindByIdAsync(userId, ct);
+        if (user?.Band is not { Length: > 0 } bandCode) return current;
+
+        var band = await _bands.GetByCodeAsync(bandCode, ct);
+        if (band is null) return current;
+
+        var allowances = ParseAllowances(band.Allowances);
+
+        var expense = await _expenses.GetByIdAsync(expenseId, ct);
+        if (expense is null) return current;
+
+        var amount = expense.ClaimedAmount ?? 0m;
+        if (amount <= 0m) return current;
+
+        var reasons = new List<string>();
+
+        var (capKey, capLabel) = expense.Category?.ToLowerInvariant() switch
+        {
+            "meals" => ("meals_limit", "meals"),
+            "hotel" => ("hotel_limit", "hotel"),
+            "fuel"  => ("fuel_limit",  "fuel"),
+            _       => ("", "")
+        };
+        if (capKey.Length > 0 && allowances.TryGetValue(capKey, out var catLimit) && amount > catLimit)
+            reasons.Add($"{capLabel} limit ₹{catLimit:N0} exceeded (claimed ₹{amount:N0})");
+
+        if (allowances.TryGetValue("daily_limit", out var dailyLimit) && dailyLimit > 0)
+        {
+            var submittedDate = DateOnly.FromDateTime(expense.SubmittedAt.UtcDateTime);
+            var alreadyUsed   = await _expenses.GetDailyTotalExcludingRejectedAsync(userId, submittedDate, expenseId, ct);
+            var newTotal      = alreadyUsed + amount;
+            if (newTotal > dailyLimit)
+                reasons.Add($"daily limit ₹{dailyLimit:N0} exceeded (₹{alreadyUsed:N0} already used + ₹{amount:N0} = ₹{newTotal:N0})");
+        }
+
+        if (reasons.Count == 0) return current;
+
+        var reason = $"Band {bandCode} limit exceeded — {string.Join("; ", reasons)}";
+        _log.LogInformation("Band limit override on {Id}: {Reason}", expenseId, reason);
+
+        return current with
+        {
+            DecisionStatus    = "needs_review",
+            NeedsReview       = true,
+            ReviewReason      = reason,
+            OverallConfidence = Math.Min(current.OverallConfidence, 0.55m)
+        };
+    }
+
+    private static Dictionary<string, decimal> ParseAllowances(string json)
+    {
+        var dict = new Dictionary<string, decimal>();
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            foreach (var kv in doc.RootElement.EnumerateObject())
+                if (kv.Value.ValueKind == JsonValueKind.Number)
+                    dict[kv.Name] = kv.Value.GetDecimal();
+        }
+        catch { }
+        return dict;
+    }
 
     private static double CalculateSimilarity(string source, string target)
     {

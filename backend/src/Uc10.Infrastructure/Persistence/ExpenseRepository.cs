@@ -140,6 +140,20 @@ public class ExpenseRepository : IExpenseRepository
             ToDb(status), expenseId);
     }
 
+    public async Task<decimal> GetDailyTotalExcludingRejectedAsync(
+        Guid userId, DateOnly date, Guid excludeExpenseId, CancellationToken ct)
+    {
+        var dayStart = date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var dayEnd   = dayStart.AddDays(1);
+        return await _db.Expenses.AsNoTracking()
+            .Where(e => e.UserId == userId
+                && e.Id != excludeExpenseId
+                && e.Status != ExpenseStatus.Rejected
+                && e.SubmittedAt >= dayStart
+                && e.SubmittedAt <  dayEnd)
+            .SumAsync(e => e.ClaimedAmount ?? 0m, ct);
+    }
+
     private static string ToDb(ExpenseStatus s) => s switch
     {
         ExpenseStatus.Processing    => "processing",

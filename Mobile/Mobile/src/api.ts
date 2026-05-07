@@ -5,7 +5,7 @@ import Constants from "expo-constants";
 export const apiBase =
   (process.env.EXPO_PUBLIC_API_BASE as string | undefined) ??
   (Constants.expoConfig?.extra?.apiBase as string | undefined) ??
-  "http://10.228.246.236:8080/api";
+  "http://expenseiq.runasp.net/api";
 
 export const api = axios.create({
   baseURL: apiBase,
