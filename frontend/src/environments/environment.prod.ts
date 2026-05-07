@@ -15,7 +15,7 @@
 // =============================================================
 export const environment = {
   production: true,
-  apiBase: 'http://expenseiq.runasp.net/api',
+  apiBase: '/api',
   appName: 'ExpenseIQ Pro',
   buildTag: 'FRS v2.0 · Enterprise',
   promptVersion: 'UC10_AUDIT_PROMPT_V2'

@@ -1,42 +1,14 @@
-# Render Blueprint — defines two free-tier web services for ExpenseAI.
-# Service names below MUST match the BACKEND host hardcoded in
-# frontend/nginx.render.conf (currently: expenseai-api.onrender.com).
-# If you rename, update both files together.
+# Render Blueprint — frontend-only deploy.
+# Backend is hosted separately at http://expenseiq.runasp.net.
+# nginx in this service reverse-proxies /api -> backend (server-side, HTTP),
+# while serving the SPA over HTTPS to browsers (no mixed-content issue).
 
 services:
-  # ---------- Backend: .NET 8 API ----------
-  - type: web
-    name: expenseai-api
-    runtime: docker
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
-    plan: free
-    region: singapore
-    healthCheckPath: /health
-    autoDeploy: true
-    envVars:
-      - key: ASPNETCORE_ENVIRONMENT
-        value: Production
-      - key: ASPNETCORE_URLS
-        value: http://+:10000
-      # OpenAI key — set the actual value in Render dashboard (sync: false
-      # means the value is NOT stored in this YAML / not synced from git).
-      - key: OpenAI__ApiKey
-        sync: false
-      # Override JWT secret — set a real 64+ char random string in dashboard.
-      - key: Jwt__Secret
-        sync: false
-      # Allow the frontend Render URL to call the API directly (only matters
-      # if anyone bypasses the nginx proxy; harmless to include).
-      - key: Cors__AllowedOrigins
-        value: https://expenseai-web.onrender.com
-
-  # ---------- Frontend: Angular + nginx ----------
   - type: web
     name: expenseai-web
     runtime: docker
     rootDir: frontend
     dockerfilePath: ./Dockerfile.render
     plan: free
-    region: singapore
+    region: oregon
     autoDeploy: true
